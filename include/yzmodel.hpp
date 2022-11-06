@@ -29,6 +29,7 @@ namespace yz
         model_ &operator=(model_ &&) = delete;
 
         const std::string m_model_path;
+        const std::string m_height_map_path;
 
         std::vector<vertex> m_vertices;
         std::vector<u32> m_indices;
@@ -39,8 +40,17 @@ namespace yz
 
         model_(
             const std::string& model_path,
-            glm::vec3 default_color = {1.f, 1.f, 1.f});
+            glm::vec3 default_color = {1.f, 1.f, 1.f}
+        );
+        model_(
+            const std::string& model_path,
+            const std::string& height_map_path,
+            glm::vec3 default_color = {1.f, 1.f, 1.f}
+        );
         ~model_();
+
+        void load_obj(glm::vec3 default_color);
+        void load_obj_to_gpu();
     }model;
 
     void draw(const model&);

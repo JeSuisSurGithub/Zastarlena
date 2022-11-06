@@ -1,5 +1,3 @@
-#include "yzcommon.hpp"
-#include "yzshader.hpp"
 #include <yzframebuffer.hpp>
 
 namespace yz
@@ -11,58 +9,53 @@ namespace yz
     m_width(width),
     m_height(height)
     {
-        glGenVertexArrays(1, &m_vao);
-        glGenBuffers(1, &m_vbo);
-        glBindVertexArray(m_vao);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(SCREEN_VERTICES), &SCREEN_VERTICES, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glCreateBuffers(1, &m_vbo);
+        glNamedBufferStorage(m_vbo, sizeof(SCREEN_VERTICES), &SCREEN_VERTICES, GL_DYNAMIC_STORAGE_BIT);
 
-        glGenFramebuffers(1, &m_fbo);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        glCreateVertexArrays(1, &m_vao);
+        glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, (4 * sizeof(float)));
+        glEnableVertexArrayAttrib(m_vao, 0);
+        glEnableVertexArrayAttrib(m_vao, 1);
+        glVertexArrayAttribFormat(m_vao, 0, 2, GL_FLOAT, GL_FALSE, 0);
+        glVertexArrayAttribFormat(m_vao, 1, 2, GL_FLOAT, GL_FALSE, (2 * sizeof(float)));
+        glVertexArrayAttribBinding(m_vao, 0, 0);
+        glVertexArrayAttribBinding(m_vao, 1, 0);
 
-        glGenTextures(2, m_fbtexture);
+        glCreateFramebuffers(1, &m_fbo);
+        glCreateTextures(GL_TEXTURE_2D, 2, m_fbtexture);
         for (std::size_t index = 0; index < 2; index++)
         {
-            glBindTexture(GL_TEXTURE_2D, m_fbtexture[index]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, m_fbtexture[index], 0);
+            glTextureStorage2D(m_fbtexture[index], 1, GL_RGBA16F, m_width, m_height);
+            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glNamedFramebufferTexture(m_fbo, GL_COLOR_ATTACHMENT0 + index, m_fbtexture[index], 0);
         }
 
-        glGenRenderbuffers(1, &m_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_width, m_height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+        glCreateRenderbuffers(1, &m_rbo);
+        glNamedRenderbufferStorage(m_rbo, GL_DEPTH24_STENCIL8, m_width, m_height);
+        glNamedFramebufferRenderbuffer(m_fbo, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
         GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-        glDrawBuffers(2, attachments);
+        glNamedFramebufferDrawBuffers(m_fbo, 2, attachments);
 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        if (glCheckNamedFramebufferStatus(m_fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Framebuffer incomplete\n");
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glGenFramebuffers(2, m_blurfbo);
-        glGenTextures(2, m_blurfb_texture);
+        glCreateFramebuffers(2, m_blurfbo);
+        glCreateTextures(GL_TEXTURE_2D, 2, m_blurfb_texture);
         for (std::size_t index = 0; index < 2; index++)
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, m_blurfbo[index]);
-            glBindTexture(GL_TEXTURE_2D, m_blurfb_texture[index]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_blurfb_texture[index], 0);
+            glTextureStorage2D(m_blurfb_texture[index], 1, GL_RGBA16F, m_width, m_height);
+            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glNamedFramebufferTexture(m_blurfbo[index], GL_COLOR_ATTACHMENT0, m_blurfb_texture[index], 0);
 
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                std::cout << "Framebuffer not complete!" << std::endl;
+            if (glCheckNamedFramebufferStatus(m_blurfbo[index], GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                throw std::runtime_error("Framebuffer incomplete\n");
         }
 
         send_int(m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
@@ -83,10 +76,14 @@ namespace yz
 
     void prepare_render(framebuffer& framebuffer_)
     {
-        glClearColor(0.005f, 0.0f, 0.01f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClearNamedFramebufferfv(0, GL_COLOR, 0, CLEAR_COLOR);
+        glClearNamedFramebufferfv(0, GL_DEPTH, 0, &CLEAR_DEPTH);
+        glClearNamedFramebufferiv(0, GL_STENCIL, 0, &CLEAR_STENCIL);
+        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_COLOR, 0, CLEAR_COLOR);
+        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_DEPTH, 0, &CLEAR_DEPTH);
+        glClearNamedFramebufferiv(framebuffer_.m_fbo, GL_STENCIL, 0, &CLEAR_STENCIL);
+        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_COLOR, 1, CLEAR_COLOR);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_fbo);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     void end_render(framebuffer& framebuffer_)
@@ -95,14 +92,14 @@ namespace yz
 
         bool horizontal = true;
         bool first_iteration = true;
-        std::size_t amount = 10;
+        std::size_t amount = 8;
         framebuffer_.m_blur.activate();
         for (std::size_t count = 0; count < amount; count++)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_blurfbo[horizontal]);
             send_int(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_HORIZONTAL, horizontal);
-            glBindTexture(GL_TEXTURE_2D,
-                first_iteration ? framebuffer_.m_fbtexture[1] : framebuffer_.m_blurfb_texture[!horizontal]);  // bind texture of other framebuffer (or scene if first iteration)
+            send_int(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
+            glBindTextureUnit(0, first_iteration ? framebuffer_.m_fbtexture[1] : framebuffer_.m_blurfb_texture[!horizontal]);
             glBindVertexArray(framebuffer_.m_vao);
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindVertexArray(0);
@@ -112,12 +109,9 @@ namespace yz
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         framebuffer_.m_combine.activate();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, framebuffer_.m_fbtexture[0]);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, framebuffer_.m_blurfb_texture[!horizontal]);
+        glBindTextureUnit(0, framebuffer_.m_fbtexture[0]);
+        glBindTextureUnit(1, framebuffer_.m_blurfb_texture[!horizontal]);
         glBindVertexArray(framebuffer_.m_vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);

@@ -45,9 +45,11 @@ namespace yz
     }rendergroup;
 
     void add_object(rendergroup_& group_ctx, const std::string& model_path, const std::string& texture_path);
+    void add_object(rendergroup_& group_ctx, const std::string& model_path, const std::string& texture_path, const std::string& height_map_path);
     void add_object(rendergroup_& group_ctx, u32 model_index, u32 texture_index);
 
     u32 add_model(rendergroup_& group_ctx, const std::string& model_path);
+    u32 add_model(rendergroup& group_ctx, const std::string& model_path, const std::string& height_map_path);
     u32 add_texture(rendergroup_& group_ctx, const std::string& texture_path);
 }
 

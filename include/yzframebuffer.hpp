@@ -17,6 +17,10 @@ namespace yz
          1.0f,  1.0f,  1.0f, 1.0f
     };
 
+    const GLfloat CLEAR_COLOR[] = {0.005f, 0.0f, 0.01f, 1.0f};
+    const GLfloat CLEAR_DEPTH = 1.f;
+    const GLint CLEAR_STENCIL = 1;
+
     typedef struct framebuffer_
     {
         framebuffer_(const framebuffer_ &) = delete;

@@ -1,5 +1,3 @@
-#include "yzcommon.hpp"
-#include "yzshader.hpp"
 #include <rendergroups/maingroup.hpp>
 
 namespace yz

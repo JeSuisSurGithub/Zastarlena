@@ -1,4 +1,4 @@
-#version 450 core
+#version 460 core
 
 layout(location = 1) in vec3 in_rgb;
 layout(location = 2) in vec2 in_uv;

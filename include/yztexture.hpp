@@ -20,7 +20,7 @@ namespace yz
         texture_(const std::string&, u32);
         ~texture_();
 
-        void activate() { glActiveTexture(GL_TEXTURE0 + m_index); glBindTexture(GL_TEXTURE_2D, m_id); }
+        void activate() { glBindTextureUnit(m_index, m_id); }
     }texture;
 }
 

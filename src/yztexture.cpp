@@ -10,21 +10,21 @@ namespace yz
     m_index(index),
     m_texture_path(filename)
     {
-        glGenTextures(1, &m_id);
-        glBindTexture(GL_TEXTURE_2D, m_id);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         int width;
         int height;
         int channels;
         stbi_uc* data = stbi_load(m_texture_path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
         if (!data)
             throw std::invalid_argument("Could not load texture\n");
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+        glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureStorage2D(m_id, 1, GL_RGBA8, width, height);
+        glTextureSubImage2D(m_id, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateTextureMipmap(m_id);
         stbi_image_free(data);
     }
 

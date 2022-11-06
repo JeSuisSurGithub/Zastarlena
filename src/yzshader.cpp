@@ -4,7 +4,7 @@ namespace yz
 {
     shader_::shader_(const std::string& vertpath, const std::string& fragpath)
     {
-        auto vertex_shader_buf = read_file(vertpath);
+        std::vector<u8> vertex_shader_buf = read_file(vertpath);
         GLuint vertex_sid = glCreateShader(GL_VERTEX_SHADER);
         glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
         glSpecializeShader(vertex_sid, "main", 0, 0, 0);
@@ -14,7 +14,7 @@ namespace yz
         if (!status)
             throw std::runtime_error("Invalid vertex shader\n");
 
-        auto fragment_shader_buf = read_file(fragpath);
+        std::vector<u8> fragment_shader_buf = read_file(fragpath);
         GLuint fragment_sid = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
         glSpecializeShader(fragment_sid, "main", 0, 0, 0);

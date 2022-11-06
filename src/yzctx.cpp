@@ -1,7 +1,3 @@
-#include "yzcommon.hpp"
-#include <cfloat>
-#include <cstdint>
-#include <cstdlib>
 #include <yzctx.hpp>
 #include <random>
 
@@ -16,7 +12,6 @@ namespace yz
         const GLchar* message,
         const void* userParam )
     {
-        return;
         if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
         std::cout << "---------------" << std::endl;
@@ -55,24 +50,35 @@ namespace yz
         std::cout << std::endl;
     }
 
-    ctx_::ctx_()
+    ctx_::ctx_(bool opengl_debug, bool wireframe)
     :
     m_window(framebuffer_size_callback),
-    m_control_ctx(m_window.m_window)
+    m_control_ctx(m_window.m_window),
+    m_wireframe(wireframe)
     {
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
             throw std::runtime_error("Failed to initialize GLAD\n");
         }
 
-        glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(opengl_debug_callback, 0);
+        if (opengl_debug)
+        {
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback(opengl_debug_callback, 0);
+        }
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
+        glEnable(GL_STENCIL_TEST);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
 
         window_size dimensions = get_size(m_window);
         m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
@@ -90,13 +96,13 @@ namespace yz
                     lehmer_randrange_flt(rand_state, -1000.f, 1000.f),
                     lehmer_randrange_flt(rand_state, -1000.f, 1000.f),
                     lehmer_randrange_flt(rand_state, -1000.f, 1000.f)};
-                float scale = lehmer_randrange(rand_state, 1.f, 500.f);
+                float scale = lehmer_randrange_flt(rand_state, 1.f, 100.f);
                 glm::vec3 color = {
                     lehmer_randrange_flt(rand_state, 0.f, 100.f),
                     lehmer_randrange_flt(rand_state, 0.f, 100.f),
                     lehmer_randrange_flt(rand_state, 0.f, 100.f)};
 
-                add_object(*m_maingroup->m_base, "models/smooth_sphere.obj", "textures/unoise.jpg");
+                add_object(*m_maingroup->m_base, "models/uvs2.obj", "textures/unoise.jpg");
                 m_maingroup->m_base->m_objects[index].m_translation = position;
                 m_maingroup->m_base->m_objects[index].m_scale = glm::vec3(scale, scale, scale);
                 rendergroups::add_point_light(*m_maingroup, position, rendergroups::RANGES[9], color);
@@ -107,13 +113,11 @@ namespace yz
         }
     }
 
-    ctx_::~ctx_()
-    {
-    }
+    ctx_::~ctx_() {}
 
     void run(ctx& ctx_)
     {
-        auto cur_time = std::chrono::high_resolution_clock::now();
+        std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
@@ -121,7 +125,7 @@ namespace yz
 
         while (!should_close(ctx_.m_window))
         {
-            auto new_time = std::chrono::high_resolution_clock::now();
+            std::chrono::system_clock::time_point new_time = std::chrono::high_resolution_clock::now();
             float delta_time =
                 std::chrono::duration<float, std::chrono::milliseconds::period>(new_time - cur_time).count();
             cur_time = new_time;
@@ -137,9 +141,12 @@ namespace yz
             if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
                 ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
             rendergroups::update(*ctx_.m_maingroup, model, view, projection, ctx_.m_control_ctx.m_camera_xyz, delta_time);
-            rendergroups::update(*ctx_.m_no_lightgroup, model, view, projection);
+            //rendergroups::update(*ctx_.m_no_lightgroup, model, view, projection);
+
+            if (ctx_.m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             rendergroups::render(*ctx_.m_maingroup);
-            rendergroups::render(*ctx_.m_no_lightgroup);
+            //rendergroups::render(*ctx_.m_no_lightgroup);
+            if (ctx_.m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
             end_render(*ctx_.m_framebuffer);
 

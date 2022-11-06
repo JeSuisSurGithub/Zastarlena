@@ -1,4 +1,4 @@
-#version 450 core
+#version 460 core
 
 layout(location = 1) in vec3 in_rgb;
 layout(location = 2) in vec2 in_uv;
@@ -63,7 +63,8 @@ void main()
     for (int i = 0; i < current_point_light_count; i++)
         result += calc_point_light(position[i], range_constants[i], color[i], normal, in_world_xyz, view_direction);
 
-    vec4 hdr_color = vec4(result, 1.0) * texture(in_texture[texture_index], vec2(in_uv.s, in_uv.t + texture_offset));
+    vec3 texture_color = texture(in_texture[texture_index], vec2(in_uv.s, in_uv.t + texture_offset)).rgb * 2.0;
+    vec4 hdr_color = vec4(result * texture_color, 1.0);
     out_rgb = hdr_color;
 
     float brightness = dot(out_rgb.rgb, vec3(0.2126, 0.7152, 0.0722));
