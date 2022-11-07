@@ -41,8 +41,8 @@ namespace rendergroups
             send_int(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_INDEX, cur_object.m_texture_index);
             glm::mat4 transform = get_transform_mat(cur_object);
             glm::mat4 inverse_transform = glm::inverse(transform);
-            glUniformMatrix4fv(UNIFORM_LOCATIONS::TRANSFORM, 1, GL_FALSE, glm::value_ptr(transform));
-            glUniformMatrix4fv(UNIFORM_LOCATIONS::INVERSE_TRANSFORM, 1, GL_FALSE, glm::value_ptr(inverse_transform));
+            send_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::TRANSFORM, glm::value_ptr(transform));
+            send_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::INVERSE_TRANSFORM, glm::value_ptr(inverse_transform));
             draw(*context.m_base->m_models[cur_object.m_model_index]);
         }
     }

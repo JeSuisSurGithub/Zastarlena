@@ -61,6 +61,14 @@ namespace yz
             throw std::runtime_error("Failed to initialize GLAD\n");
         }
 
+        GLint major;
+        GLint minor;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+        std::cout << "OpenGL VERSION: " << major << '.' << minor << std::endl;
+        std::cout << "VENDOR: " << glGetString(GL_VENDOR) << std::endl;
+        std::cout << "RENDERER: " << glGetString(GL_RENDERER) << std::endl;
+
         if (opengl_debug)
         {
             glEnable(GL_DEBUG_OUTPUT);
@@ -93,9 +101,9 @@ namespace yz
             for (std::size_t index = 0; index < MAX_POINT_LIGHT; index++)
             {
                 glm::vec3 position = {
-                    lehmer_randrange_flt(rand_state, -1000.f, 1000.f),
-                    lehmer_randrange_flt(rand_state, -1000.f, 1000.f),
-                    lehmer_randrange_flt(rand_state, -1000.f, 1000.f)};
+                    lehmer_randrange_flt(rand_state, -2000.f, 2000.f),
+                    lehmer_randrange_flt(rand_state, -2000.f, 2000.f),
+                    lehmer_randrange_flt(rand_state, -2000.f, 2000.f)};
                 float scale = lehmer_randrange_flt(rand_state, 1.f, 100.f);
                 glm::vec3 color = {
                     lehmer_randrange_flt(rand_state, 0.f, 100.f),

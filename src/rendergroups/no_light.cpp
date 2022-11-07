@@ -27,7 +27,7 @@ namespace rendergroups
             context.m_base->m_textures[cur_object.m_texture_index]->activate();
             send_int(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_INDEX, cur_object.m_texture_index);
             glm::mat4 transform = get_transform_mat(cur_object);
-            glUniformMatrix4fv(UNIFORM_LOCATIONS::TRANSFORM, 1, GL_FALSE, glm::value_ptr(transform));
+            send_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::TRANSFORM, glm::value_ptr(transform));
             draw(*context.m_base->m_models[cur_object.m_model_index]);
         }
     }

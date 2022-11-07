@@ -57,31 +57,26 @@ namespace yz
 
     void send_matrix4(shader& program, GLint location, float* matrix)
     {
-        program.activate();
-        glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
+        glProgramUniformMatrix4fv(program.m_id, location, 1, GL_FALSE, matrix);
     }
 
     void send_vec3(shader& program, GLint location, glm::vec3 vec)
     {
-        program.activate();
-        glUniform3f(location, vec.x, vec.y, vec.z);
+        glProgramUniform3f(program.m_id, location, vec.x, vec.y, vec.z);
     }
 
     void send_int(shader& program, GLint location, int int_)
     {
-        program.activate();
-        glUniform1i(location, int_);
+        glProgramUniform1i(program.m_id, location, int_);
     }
 
     void send_int_array(shader& program, GLint location, GLint* int_array, size_t size)
     {
-        program.activate();
-        glUniform1iv(location, size, int_array);
+        glProgramUniform1iv(program.m_id, location, size, int_array);
     }
 
     void send_float(shader& program, GLint location, float float_)
     {
-        program.activate();
-        glUniform1f(location, float_);
+        glProgramUniform1f(program.m_id, location, float_);
     }
 }
