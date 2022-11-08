@@ -37,7 +37,6 @@ namespace yz
     m_objects()
     {
         m_program = std::make_unique<shader>(vert_path, frag_path);
-        m_program->activate();
 
         GLint values[MAX_TEXTURE_COUNT];
         for (std::size_t index = 0; index < MAX_TEXTURE_COUNT; index++)
