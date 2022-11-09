@@ -1,7 +1,7 @@
 set_xmakever("2.2.5")
 
 set_project("YuZhou")
-set_version("1.2.0")
+set_version("1.4.0")
 set_languages("cxx17")
 
 add_requires("opengl", "glfw", "glslang", {configs = {binaryonly = true}})

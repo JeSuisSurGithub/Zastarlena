@@ -50,9 +50,49 @@ namespace yz
         glDeleteProgram(m_id);
     }
 
-    std::vector<u8> read_file(const std::string& filename)
+    void bind(shader& shader_)
     {
-        std::ifstream in_file(filename, std::ios::ate | std::ios::binary);
+        glUseProgram(shader_.m_id);
+    }
+
+    void update_matrix4(shader& program, GLint location, const glm::mat4& matrix)
+    {
+        glProgramUniformMatrix4fv(program.m_id, location, 1, GL_FALSE, glm::value_ptr(matrix));
+    }
+
+    void update_uint_array(shader& program, GLint location, GLuint* uintv, std::size_t size)
+    {
+        glProgramUniform1uiv(program.m_id, location, size, uintv);
+    }
+
+    void update_int_array(shader& program, GLint location, GLint* intv, std::size_t size)
+    {
+        glProgramUniform1iv(program.m_id, location, size, intv);
+    }
+
+    void update_uint(shader& program, GLint location, GLuint uint_)
+    {
+        glProgramUniform1ui(program.m_id, location, uint_);
+    }
+
+    void update_int(shader& program, GLint location, GLint int_)
+    {
+        glProgramUniform1i(program.m_id, location, int_);
+    }
+
+    void update_bool(shader& program, GLint location, bool bool_)
+    {
+        glProgramUniform1i(program.m_id, location, bool_);
+    }
+
+    void update_float(shader& program, GLint location, float float_)
+    {
+        glProgramUniform1f(program.m_id, location, float_);
+    }
+
+    std::vector<u8> read_file(const std::string& filepath)
+    {
+        std::ifstream in_file(filepath, std::ios::ate | std::ios::binary);
         if (!in_file.is_open())
             throw std::runtime_error("Failed to open file!");
         std::size_t filesize = in_file.tellg();
@@ -61,30 +101,5 @@ namespace yz
         in_file.read(reinterpret_cast<char*>(buffer.data()), filesize);
         in_file.close();
         return buffer;
-    }
-
-    void send_matrix4(shader& program, GLint location, float* matrix)
-    {
-        glProgramUniformMatrix4fv(program.m_id, location, 1, GL_FALSE, matrix);
-    }
-
-    void send_vec3(shader& program, GLint location, glm::vec3 vec)
-    {
-        glProgramUniform3f(program.m_id, location, vec.x, vec.y, vec.z);
-    }
-
-    void send_int(shader& program, GLint location, int int_)
-    {
-        glProgramUniform1i(program.m_id, location, int_);
-    }
-
-    void send_int_array(shader& program, GLint location, GLint* int_array, size_t size)
-    {
-        glProgramUniform1iv(program.m_id, location, size, int_array);
-    }
-
-    void send_float(shader& program, GLint location, float float_)
-    {
-        glProgramUniform1f(program.m_id, location, float_);
     }
 }

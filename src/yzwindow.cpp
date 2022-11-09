@@ -33,7 +33,7 @@ namespace yz
             glfwSetWindowShouldClose(window_.m_window, true);
     }
 
-    void present(window& window_)
+    void swap_buffers(window& window_)
     {
         glfwSwapBuffers(window_.m_window);
     }

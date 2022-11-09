@@ -6,25 +6,38 @@ namespace yz
 {
     controls_::controls_(GLFWwindow* window)
     :
-    m_camera_xyz(glm::vec3(0.f, 0.f, 5.f)),
+    m_show_mouse(false),
     m_move_speed(.25f),
     m_view_speed(.00025f),
     m_horizontal_angle(3.14f),
     m_vertical_angle(0.f),
-    m_show_mouse(false),
     m_show_mouse_cooldown(0),
-    m_show_mouse_cooldown_max(500) // 500ms
+    m_show_mouse_cooldown_max(500), // 500ms
+    m_camera_xyz(glm::vec3(0.f, 0.f, 5.f))
     {
         glfwSetScrollCallback(window, scroll_callback);
     }
 
     controls_::~controls_() {}
 
-    glm::mat4 process_input(controls& context, GLFWwindow* window, float delta_time)
+    glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time)
     {
+
         int width{0};
         int height{0};
         glfwGetWindowSize(window, &width, &height);
+
+        // Check for mouse grab toggle
+        context.m_show_mouse_cooldown += delta_time;
+        if ((context.m_show_mouse_cooldown >= context.m_show_mouse_cooldown_max) && glfwGetKey(window, KEYMAP::SHOW_MOUSE) == GLFW_PRESS)
+        {
+            context.m_show_mouse_cooldown = 0;
+            context.m_show_mouse = !context.m_show_mouse;
+            glfwSetInputMode(window, GLFW_CURSOR, (context.m_show_mouse) ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+            if (!context.m_show_mouse) { glfwSetCursorPos(window, static_cast<double>(width) / 2, static_cast<double>(height) / 2); }
+        }
+
+        // Movement
 
         if (!context.m_show_mouse)
         {
@@ -32,8 +45,7 @@ namespace yz
             double ypos{0};
             glfwGetCursorPos(window, &xpos, &ypos);
             glfwSetCursorPos(window, static_cast<double>(width) / 2, static_cast<double>(height) / 2);
-            int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
-            if (focused)
+            if (glfwGetWindowAttrib(window, GLFW_FOCUSED))
             {
                 context.m_horizontal_angle += context.m_view_speed * delta_time * (int(width / 2) - xpos);
                 context.m_vertical_angle   += context.m_view_speed * delta_time * (int(height / 2) - ypos);
@@ -51,14 +63,6 @@ namespace yz
         );
         glm::vec3 up = glm::cross(right, forward);
 
-        context.m_show_mouse_cooldown += delta_time;
-        if ((context.m_show_mouse_cooldown >= context.m_show_mouse_cooldown_max) && glfwGetKey(window, KEYMAP::SHOW_MOUSE) == GLFW_PRESS)
-        {
-            context.m_show_mouse_cooldown = 0;
-            context.m_show_mouse = !context.m_show_mouse;
-            glfwSetInputMode(window, GLFW_CURSOR, (context.m_show_mouse) ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
-            if (!context.m_show_mouse) { glfwSetCursorPos(window, static_cast<double>(width) / 2, static_cast<double>(height) / 2); }
-        }
         if (glfwGetKey(window, KEYMAP::FORWARD) == GLFW_PRESS)
         {
             context.m_camera_xyz += forward * delta_time * context.m_move_speed;

@@ -13,6 +13,7 @@ namespace yz
         window_ &operator=(window_ &&) = delete;
 
         GLFWwindow* m_window;
+
         window_(GLFWframebuffersizefun);
         ~window_();
     }window;
@@ -23,13 +24,10 @@ namespace yz
         int height;
     }window_size;
 
-    void update(window&);
-
-    void present(window&);
-
-    window_size get_size(const window&);
-
-    bool should_close(const window&);
+    void update(window& window_);
+    void swap_buffers(window& window_);
+    window_size get_size(const window& window_);
+    bool should_close(const window& window_);
 }
 
 #endif /* YZWINDOW_HPP */

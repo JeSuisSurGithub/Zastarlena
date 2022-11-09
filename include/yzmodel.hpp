@@ -53,7 +53,7 @@ namespace yz
         void load_obj_to_gpu();
     }model;
 
-    void draw(const model&);
+    void draw(model& model_);
 }
 
 #endif /* YZMODEL_HPP */

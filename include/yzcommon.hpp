@@ -22,6 +22,23 @@ namespace yz
     typedef std::uint8_t u8;
     typedef std::uint32_t u32;
 
+    const std::string WINDOW_NAME{"YuZhou"};
+    constexpr u32 MAX_TEXTURE_COUNT{32};
+    constexpr u32 MAX_POINT_LIGHT{32};
+
+    typedef enum UNIFORM_LOCATIONS_
+    {
+        TEXTURE = 0,
+        TEXTURE_INDEX = 32,
+        TRANSFORM = 33,
+        INVERSE_TRANSFORM = 34,
+        COMBINE_MAIN_SCENE = 35,
+        COMBINE_BLOOM = 36,
+        BLUR_INPUT_IMAGE = 37,
+        BLUR_HORIZONTAL = 38,
+        TEXTURE_SCROLL_OFFSET = 40
+    }UNIFORM_LOCATIONS;
+
     typedef struct vertex_
     {
         glm::vec3 xyz;
@@ -34,31 +51,22 @@ namespace yz
         }
     }vertex;
 
-    const std::string WINDOW_NAME{"YuZhou"};
-
-    constexpr u32 MAX_TEXTURE_COUNT{32};
-    constexpr u32 MAX_POINT_LIGHT{32};
-
-    typedef enum UNIFORM_LOCATIONS_
+    typedef struct ubo_point_light_
     {
-        TEXTURE = 0,
-        TEXTURE_INDEX = 32,
-        MODEL = 33,
-        VIEW = 34,
-        PROJECTION = 35,
-        TRANSFORM = 36,
-        INVERSE_TRANSFORM = 37,
-        CAMERA_XYZ = 38,
-        POINT_LIGHTS_POSITION = 39,
-        POINT_LIGHTS_ATTENUATION_CONST = 71,
-        POINT_LIGHTS_COLOR = 103,
-        CURRENT_POINT_LIGHT_COUNT = 135,
-        COMBINE_MAIN_SCENE = 136,
-        COMBINE_BLURRED = 137,
-        BLUR_INPUT_IMAGE = 138,
-        BLUR_HORIZONTAL = 139,
-        TEXTURE_SCROLL_OFFSET = 140
-    }UNIFORM_LOCATIONS;
+        alignas(16) glm::vec3 position;
+        alignas(16) glm::vec3 range;
+        alignas(16) glm::vec3 color;
+    }ubo_point_light;
+
+    typedef struct ubo_shared_
+    {
+        alignas(64) glm::mat4 model;
+        alignas(64) glm::mat4 view;
+        alignas(64) glm::mat4 projection;
+        alignas(16) glm::vec3 camera_xyz;
+        ubo_point_light point_lights[MAX_POINT_LIGHT];
+        alignas(4) GLint current_point_light_count;
+    }ubo_shared;
 }
 
 #endif /* YZCOMMON_HPP */

@@ -10,11 +10,25 @@ layout (location = 2) out vec2 out_uv;
 layout (location = 3) out vec3 out_world_normal;
 layout (location = 4) out vec3 out_world_xyz;
 
-layout (location = 33) uniform mat4 model;
-layout (location = 34) uniform mat4 view;
-layout (location = 35) uniform mat4 projection;
-layout (location = 36) uniform mat4 transform;
-layout (location = 37) uniform mat4 inverse_transform;
+struct point_light
+{
+    vec3 position;
+    vec3 range;
+    vec3 color;
+};
+
+layout (std140, binding = 0) uniform shared_ubo
+{
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+    vec3 camera_xyz;
+    point_light point_lights[32];
+    uint current_point_light_count;
+};
+
+layout (location = 33) uniform mat4 transform;
+layout (location = 34) uniform mat4 inverse_transform;
 
 void main()
 {

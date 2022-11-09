@@ -19,6 +19,7 @@ namespace yz
         load_obj(default_color);
         load_obj_to_gpu();
     }
+
     model_::model_(
             const std::string& model_path,
             const std::string& height_map_path,
@@ -40,9 +41,8 @@ namespace yz
         {
             int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
             float displacement = (255 - data[pixel_index]) / 255.0 + 0.5;
-            displacement = std::clamp(displacement, 1.1f, 1.2f);
+            displacement = std::clamp(displacement, 1.0f, 1.2f);
             m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * displacement;
-            m_vertices[index].normal += glm::normalize(m_vertices[index].normal) * displacement;
         }
         stbi_image_free(data);
         load_obj_to_gpu();
@@ -135,7 +135,7 @@ namespace yz
         glDeleteBuffers(1, &m_ebo);
     }
 
-    void draw(const model& model_)
+    void draw(model& model_)
     {
         glBindVertexArray(model_.m_vao);
         glDrawElements(GL_TRIANGLES, model_.m_indices.size(), GL_UNSIGNED_INT, 0);

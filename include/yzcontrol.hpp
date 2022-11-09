@@ -22,20 +22,20 @@ namespace yz
         controls_(controls_ &&) = delete;
         controls_ &operator=(controls_ &&) = delete;
 
-        glm::vec3 m_camera_xyz;
+        bool m_show_mouse;
         float m_move_speed;
         float m_view_speed;
         float m_horizontal_angle;
         float m_vertical_angle;
-        bool m_show_mouse;
         u32 m_show_mouse_cooldown;
         u32 m_show_mouse_cooldown_max;
+        glm::vec3 m_camera_xyz;
 
-        controls_(GLFWwindow*);
+        controls_(GLFWwindow* window);
         ~controls_();
     }controls;
 
-    glm::mat4 process_input(controls& context, GLFWwindow* window, float delta_time);
+    glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time);
 
     float get_fov();
 

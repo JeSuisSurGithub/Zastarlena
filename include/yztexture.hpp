@@ -17,11 +17,11 @@ namespace yz
 
         const std::string m_texture_path;
 
-        texture_(const std::string&, u32);
+        texture_(const std::string& texture_path, u32 index);
         ~texture_();
-
-        void activate() { glBindTextureUnit(m_index, m_id); }
     }texture;
+
+    void bind(texture& texture_);
 }
 
 #endif /* YZTEXTURE_HPP */

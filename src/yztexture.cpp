@@ -5,10 +5,10 @@
 
 namespace yz
 {
-    texture_::texture_(const std::string& filename, u32 index)
+    texture_::texture_(const std::string& texture_path, u32 index)
     :
     m_index(index),
-    m_texture_path(filename)
+    m_texture_path(texture_path)
     {
         int width;
         int height;
@@ -31,5 +31,10 @@ namespace yz
     texture_::~texture_()
     {
         glDeleteTextures(1, &m_id);
+    }
+
+    void bind(texture& texture_)
+    {
+        glBindTextureUnit(texture_.m_index, texture_.m_id);
     }
 }

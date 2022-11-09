@@ -58,9 +58,9 @@ namespace yz
                 throw std::runtime_error("Framebuffer incomplete\n");
         }
 
-        send_int(m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
-        send_int(m_combine, UNIFORM_LOCATIONS::COMBINE_MAIN_SCENE, 0);
-        send_int(m_combine, UNIFORM_LOCATIONS::COMBINE_BLURRED, 1);
+        update_int(m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
+        update_int(m_combine, UNIFORM_LOCATIONS::COMBINE_MAIN_SCENE, 0);
+        update_int(m_combine, UNIFORM_LOCATIONS::COMBINE_BLOOM, 1);
     }
 
     framebuffer_::~framebuffer_()
@@ -93,13 +93,13 @@ namespace yz
         bool horizontal = true;
         bool first_iteration = true;
         std::size_t amount = 8;
-        framebuffer_.m_blur.activate();
+        bind(framebuffer_.m_blur);
         for (std::size_t count = 0; count < amount; count++)
         {
+            update_bool(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_HORIZONTAL, horizontal);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_blurfbo[horizontal]);
-            send_int(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_HORIZONTAL, horizontal);
-            send_int(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
             glBindTextureUnit(0, first_iteration ? framebuffer_.m_fbtexture[1] : framebuffer_.m_blurfb_texture[!horizontal]);
+
             glBindVertexArray(framebuffer_.m_vao);
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindVertexArray(0);
@@ -109,7 +109,7 @@ namespace yz
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        framebuffer_.m_combine.activate();
+        bind(framebuffer_.m_combine);
         glBindTextureUnit(0, framebuffer_.m_fbtexture[0]);
         glBindTextureUnit(1, framebuffer_.m_blurfb_texture[!horizontal]);
         glBindVertexArray(framebuffer_.m_vao);

@@ -8,19 +8,31 @@ layout(location = 4) in vec3 in_world_xyz;
 layout(location = 0) out vec4 out_rgb;
 layout(location = 1) out vec4 out_bright_rgb;
 
-layout(location = 0) uniform sampler2D in_texture[32];
-layout(location = 32) uniform int texture_index;
-layout(location = 38) uniform vec3 camera_xyz;
-layout(location = 140) uniform float texture_offset;
+#define MAX_POINT_LIGHT 32
+
+struct point_light
+{
+    vec3 position;
+    vec3 range;
+    vec3 color;
+};
+
+layout (std140, binding = 0) uniform shared_ubo
+{
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+    vec3 camera_xyz;
+    point_light point_lights[MAX_POINT_LIGHT];
+    uint current_point_light_count;
+};
+
+layout(location = 0) uniform sampler2D textures[32];
+layout(location = 32) uniform uint texture_index;
+layout(location = 40) uniform float texture_offset;
 
 const vec3 DIRECTION = vec3(0.0, -1.0, 0.0);
 const float AMBIENT_STRENGTH = 0.1;
-
-#define MAX_POINT_LIGHT 32
-layout(location = 39) uniform vec3 position[MAX_POINT_LIGHT];
-layout(location = 71) uniform vec3 range_constants[MAX_POINT_LIGHT];
-layout(location = 103) uniform vec3 color[MAX_POINT_LIGHT];
-layout(location = 135) uniform int current_point_light_count;
 
 vec3 calc_directional(vec3 normal, vec3 view_direction)
 {
@@ -61,9 +73,10 @@ void main()
     vec3 result = vec3(1.0, 1.0, 1.0); //calc_directional(normal, view_direction);
 
     for (int i = 0; i < current_point_light_count; i++)
-        result += calc_point_light(position[i], range_constants[i], color[i], normal, in_world_xyz, view_direction);
+        result +=
+            calc_point_light(point_lights[i].position, point_lights[i].range, point_lights[i].color, normal, in_world_xyz, view_direction);
 
-    vec3 texture_color = texture(in_texture[texture_index], vec2(in_uv.s, in_uv.t + texture_offset)).rgb * 2.0;
+    vec3 texture_color = texture(textures[texture_index], vec2(in_uv.s, in_uv.t + texture_offset)).rgb * 2.0;
     vec4 hdr_color = vec4(result * texture_color, 1.0);
     out_rgb = hdr_color;
 

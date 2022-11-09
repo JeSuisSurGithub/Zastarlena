@@ -1,5 +1,6 @@
+#include "yzshader.hpp"
 #include <yzrendergroup.hpp>
-#include <memory>
+
 #include <glm/gtx/quaternion.hpp>
 
 
@@ -31,17 +32,15 @@ namespace yz
 
     rendergroup_::rendergroup_(const std::string& vert_path, const std::string& frag_path)
     :
-    m_program(),
+    m_program(std::make_unique<shader>(vert_path, frag_path)),
     m_textures(),
     m_models(),
     m_objects()
     {
-        m_program = std::make_unique<shader>(vert_path, frag_path);
-
         GLint values[MAX_TEXTURE_COUNT];
         for (std::size_t index = 0; index < MAX_TEXTURE_COUNT; index++)
             values[index] = index;
-        send_int_array(*m_program, UNIFORM_LOCATIONS::TEXTURE, values, MAX_TEXTURE_COUNT);
+        update_int_array(*m_program, UNIFORM_LOCATIONS::TEXTURE, values, MAX_TEXTURE_COUNT);
     }
 
     rendergroup_::~rendergroup_() {}
@@ -72,7 +71,10 @@ namespace yz
         std::vector<std::unique_ptr<model>>::iterator iterator = std::find_if(
             group_ctx.m_models.begin(),
             group_ctx.m_models.end(),
-            [&](std::unique_ptr<model>& model) -> bool { return (model->m_model_path == model_path); });
+            [&](std::unique_ptr<model>& model) -> bool
+        {
+            return (model->m_model_path == model_path);
+        });
 
         u32 model_index{0};
         if (iterator == std::end(group_ctx.m_models))
@@ -118,7 +120,10 @@ namespace yz
         std::vector<std::unique_ptr<texture>>::iterator iterator = std::find_if(
             group_ctx.m_textures.begin(),
             group_ctx.m_textures.end(),
-            [&](std::unique_ptr<texture>& texture) -> bool { return (texture->m_texture_path == texture_path); });
+            [&](std::unique_ptr<texture>& texture) -> bool
+        {
+            return (texture->m_texture_path == texture_path);
+        });
 
         u32 texture_index{0};
         if (iterator == std::end(group_ctx.m_textures))

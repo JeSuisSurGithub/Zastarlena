@@ -3,8 +3,9 @@
 layout (location = 0) in vec2 in_uv;
 layout (location = 0) out vec4 out_rgb;
 
-layout (location = 138) uniform sampler2D in_image;
-layout (location = 139) uniform bool horizontal;
+layout (location = 37) uniform sampler2D in_image;
+layout (location = 38) uniform bool horizontal;
+
 const float weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
 
 void main()
