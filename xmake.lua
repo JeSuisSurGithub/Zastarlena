@@ -25,10 +25,11 @@ target("yuzhou")
 
     -- Libraries
     -- If MSVC
-    --if is_plat("windows") and not is_subhost("msys", "cygwin") then
-    --    add_includedirs("$(env VK_SDK_PATH)/Include")
-    --    add_linkdirs("$(env VK_SDK_PATH)/Lib")
-    --end
+    if is_plat("windows") then
+        add_links("opengl32")
+    else
+        add_links("GL")
+    end
     add_includedirs("include")
 
     -- MSYS2 calls it glfw3
@@ -37,7 +38,6 @@ target("yuzhou")
     else
         add_links("glfw")
     end
-    add_links("GL")
 
     -- Compiler options
     set_warnings("everything")
@@ -48,21 +48,22 @@ target("yuzhou")
     end
 
     -- Shaders
-    add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
-    add_files(
-        "shaders/blur.vert",
-        "shaders/blur.frag",
-        "shaders/combine.vert",
-        "shaders/combine.frag",
-        "shaders/main.vert",
-        "shaders/main.frag",
-        "shaders/no_lighting.vert",
-        "shaders/no_lighting.frag")
+    -- add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
+    -- add_files(
+    --     "shaders/blur.vert",
+    --     "shaders/blur.frag",
+    --     "shaders/combine.vert",
+    --     "shaders/combine.frag",
+    --     "shaders/main.vert",
+    --     "shaders/main.frag",
+    --     "shaders/no_lighting.vert",
+    --     "shaders/no_lighting.frag")
 
     -- Assets
     after_build(function (target)
         os.cp(target:targetfile(), "build")
         os.cp("models", "build")
         os.cp("textures", "build")
+        os.cp("shaders", "build")
     end)
 target_end()

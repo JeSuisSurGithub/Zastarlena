@@ -7,7 +7,7 @@ namespace rendergroups
 {
     no_lightgroup_::no_lightgroup_()
     {
-        m_base = std::make_unique<rendergroup>("shaders/no_lighting.vert.spv", "shaders/no_lighting.frag.spv");
+        m_base = std::make_unique<rendergroup>("shaders/no_lighting.vert", "shaders/no_lighting.frag");
     }
 
     no_lightgroup_::~no_lightgroup_() {}

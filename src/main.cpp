@@ -4,7 +4,7 @@ int main()
 {
     try
     {
-        yz::ctx context{true, false};
+        yz::ctx context{false, false};
         yz::run(context);
     }
     catch (const std::exception& err)

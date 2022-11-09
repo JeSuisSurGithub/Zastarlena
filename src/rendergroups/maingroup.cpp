@@ -10,7 +10,7 @@ namespace rendergroups
     m_current_point_light_count(0),
     m_texture_offset_count(0)
     {
-        m_base = std::make_unique<rendergroup>("shaders/main.vert.spv", "shaders/main.frag.spv");
+        m_base = std::make_unique<rendergroup>("shaders/main.vert", "shaders/main.frag");
     }
 
     maingroup_::~maingroup_() {}

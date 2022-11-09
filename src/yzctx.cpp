@@ -63,15 +63,16 @@ namespace yz
 
         GLint major;
         GLint minor;
+        GLint ext_count;
         glGetIntegerv(GL_MAJOR_VERSION, &major);
         glGetIntegerv(GL_MINOR_VERSION, &minor);
+        glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
         std::cout << "OpenGL VERSION: " << major << '.' << minor << std::endl;
         std::cout << "VENDOR: " << glGetString(GL_VENDOR) << std::endl;
         std::cout << "RENDERER: " << glGetString(GL_RENDERER) << std::endl;
-        GLint ext_count;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
         std::cout << "EXTENSIONS:" << std::endl;
-        for (std::size_t count = 0; count < ext_count; count++) std::cout << '\t' << glGetStringi(GL_EXTENSIONS, count) << std::endl;
+        for (std::size_t count = 0; count < ext_count; count++)
+            std::cout << '\t' << glGetStringi(GL_EXTENSIONS, count) << std::endl;
 
         if (opengl_debug)
         {

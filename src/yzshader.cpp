@@ -6,8 +6,12 @@ namespace yz
     {
         std::vector<u8> vertex_shader_buf = read_file(vertpath);
         GLuint vertex_sid = glCreateShader(GL_VERTEX_SHADER);
-        glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
-        glSpecializeShader(vertex_sid, "main", 0, 0, 0);
+        vertex_shader_buf.push_back('\0');
+        const char* ptr_holder = reinterpret_cast<const char*>(vertex_shader_buf.data());
+        glShaderSource(vertex_sid, 1, &ptr_holder, NULL);
+        glCompileShader(vertex_sid);
+        //glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
+        //glSpecializeShader(vertex_sid, "main", 0, 0, 0);
 
         int status = 0;
         glGetShaderiv(vertex_sid, GL_COMPILE_STATUS, &status);
@@ -16,8 +20,12 @@ namespace yz
 
         std::vector<u8> fragment_shader_buf = read_file(fragpath);
         GLuint fragment_sid = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
-        glSpecializeShader(fragment_sid, "main", 0, 0, 0);
+        fragment_shader_buf.push_back('\0');
+        ptr_holder = reinterpret_cast<const char*>(fragment_shader_buf.data());
+        glShaderSource(fragment_sid, 1, &ptr_holder, NULL);
+        glCompileShader(fragment_sid);
+        //glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
+        //glSpecializeShader(fragment_sid, "main", 0, 0, 0);
 
         status = 0;
         glGetShaderiv(fragment_sid, GL_COMPILE_STATUS, &status);

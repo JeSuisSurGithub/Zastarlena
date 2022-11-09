@@ -4,8 +4,8 @@ namespace yz
 {
     framebuffer_::framebuffer_(int width, int height)
     :
-    m_combine("shaders/combine.vert.spv", "shaders/combine.frag.spv"),
-    m_blur("shaders/blur.vert.spv", "shaders/blur.frag.spv"),
+    m_combine("shaders/combine.vert", "shaders/combine.frag"),
+    m_blur("shaders/blur.vert", "shaders/blur.frag"),
     m_width(width),
     m_height(height)
     {
