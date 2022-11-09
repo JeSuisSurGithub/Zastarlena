@@ -36,14 +36,14 @@ namespace yz
         if (!data)
             throw std::invalid_argument("Could not load height map\n");
 
-        //for (std::size_t index = 0; index < m_vertices.size(); index++)
-        //{
-        //    int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
-        //    float displacement = (255 - data[pixel_index]) / 255.0 + 0.5;
-        //    displacement = std::clamp(displacement, 0.9f, 1.2f);
-        //    m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * displacement;
-        //    m_vertices[index].normal += glm::normalize(m_vertices[index].normal) * displacement;
-        //}
+        for (std::size_t index = 0; index < m_vertices.size(); index++)
+        {
+            int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
+            float displacement = (255 - data[pixel_index]) / 255.0 + 0.5;
+            displacement = std::clamp(displacement, 1.1f, 1.2f);
+            m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * displacement;
+            m_vertices[index].normal += glm::normalize(m_vertices[index].normal) * displacement;
+        }
         stbi_image_free(data);
         load_obj_to_gpu();
     }

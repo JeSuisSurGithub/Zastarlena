@@ -24,8 +24,7 @@ target("yuzhou")
         "src/yzwindow.cpp")
 
     -- Libraries
-    -- If MSVC
-    if is_plat("windows") then
+    if is_host("windows") then
         add_links("opengl32")
     else
         add_links("GL")
