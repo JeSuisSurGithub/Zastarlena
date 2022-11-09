@@ -1,5 +1,5 @@
+#include "yzcommon.hpp"
 #include <yzctx.hpp>
-#include <random>
 
 namespace yz
 {
@@ -52,9 +52,9 @@ namespace yz
 
     ctx_::ctx_(bool opengl_debug, bool wireframe)
     :
+    m_wireframe(wireframe),
     m_window(framebuffer_size_callback),
-    m_control_ctx(m_window.m_window),
-    m_wireframe(wireframe)
+    m_control_ctx(m_window.m_window)
     {
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
@@ -67,6 +67,7 @@ namespace yz
         glGetIntegerv(GL_MAJOR_VERSION, &major);
         glGetIntegerv(GL_MINOR_VERSION, &minor);
         glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
+
         std::cout << "OpenGL VERSION: " << major << '.' << minor << std::endl;
         std::cout << "VENDOR: " << glGetString(GL_VENDOR) << std::endl;
         std::cout << "RENDERER: " << glGetString(GL_RENDERER) << std::endl;
@@ -95,15 +96,14 @@ namespace yz
 
         window_size dimensions = get_size(m_window);
         m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
+        m_maingroup = std::make_unique<rendergroups::maingroup>();
+        m_no_lightgroup = std::make_unique<rendergroups::no_lightgroup>();
 
         // Generate stars
         {
-            m_maingroup = std::make_unique<rendergroups::maingroup>();
-            m_no_lightgroup = std::make_unique<rendergroups::no_lightgroup>();
-
             u32 rand_state = std::chrono::high_resolution_clock::now().time_since_epoch().count();
             std::cout << "SEED: " << rand_state << std::endl;
-            for (std::size_t index = 0; index < MAX_POINT_LIGHT; index++)
+            for (m_global_ubo.point_light_count = 0; m_global_ubo.point_light_count < MAX_POINT_LIGHT; m_global_ubo.point_light_count++)
             {
                 glm::vec3 position = {
                     lehmer_randrange_flt(rand_state, -2000.f, 2000.f),
@@ -116,26 +116,28 @@ namespace yz
                     lehmer_randrange_flt(rand_state, 0.f, 100.f)};
 
                 add_object(*m_maingroup->m_base, "models/uvs2.obj", "textures/unoise.jpg");
-                m_maingroup->m_base->m_objects[index].m_translation = position;
-                m_maingroup->m_base->m_objects[index].m_scale = glm::vec3(scale, scale, scale);
-                rendergroups::add_point_light(*m_maingroup, position, rendergroups::RANGES[9], color);
-            }
+                m_maingroup->m_base->m_objects[m_global_ubo.point_light_count].m_translation = position;
+                m_maingroup->m_base->m_objects[m_global_ubo.point_light_count].m_scale = glm::vec3(scale, scale, scale);
 
-            //add_object(*m_no_lightgroup->m_base, "models/sphere.obj", "textures/skybox.png");
-            //m_no_lightgroup->m_base->m_objects[0].m_scale = glm::vec3(5000.f, 5000.f, 5000.f);
+                m_global_ubo.point_lights[m_global_ubo.point_light_count].position = position;
+                m_global_ubo.point_lights[m_global_ubo.point_light_count].range = LIGHT_RANGES[9];
+                m_global_ubo.point_lights[m_global_ubo.point_light_count].color = color;
+            }
         }
+
+        glCreateBuffers(1, &m_ubo);
+        glNamedBufferStorage(m_ubo, sizeof(ubo_shared), (void*)&m_global_ubo, GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_ubo, 0, sizeof(ubo_shared));
+        glNamedBufferSubData(m_ubo, 0, sizeof(ubo_shared), (void*)&m_global_ubo);
     }
 
     ctx_::~ctx_() {}
 
     void run(ctx& ctx_)
     {
+        ctx_.m_global_ubo.model = glm::mat4(1.0f);
+
         std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
-
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-
         while (!should_close(ctx_.m_window))
         {
             std::chrono::system_clock::time_point new_time = std::chrono::high_resolution_clock::now();
@@ -145,25 +147,30 @@ namespace yz
 
             update(ctx_.m_window);
 
-            view = process_input(ctx_.m_control_ctx, ctx_.m_window.m_window, delta_time);
-
-            prepare_render(*ctx_.m_framebuffer);
+            ctx_.m_global_ubo.view = process_controls(ctx_.m_control_ctx, ctx_.m_window.m_window, delta_time);
 
             window_size dimensions = get_size(ctx_.m_window);
-            projection = glm::perspective(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1f, 10000.0f);
+            ctx_.m_global_ubo.projection =
+                glm::perspective(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1f, 10000.0f);
+
+            ctx_.m_global_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
+
+            rendergroups::update(*ctx_.m_maingroup, delta_time);
+            //rendergroups::update(*ctx_.m_no_lightgroup);
+
             if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
                 ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
-            rendergroups::update(*ctx_.m_maingroup, model, view, projection, ctx_.m_control_ctx.m_camera_xyz, delta_time);
-            //rendergroups::update(*ctx_.m_no_lightgroup, model, view, projection);
 
-            if (ctx_.m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            rendergroups::render(*ctx_.m_maingroup);
-            //rendergroups::render(*ctx_.m_no_lightgroup);
-            if (ctx_.m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glNamedBufferSubData(ctx_.m_ubo, 0, sizeof(ubo_shared), (void*)&ctx_.m_global_ubo);
 
+            prepare_render(*ctx_.m_framebuffer);
+                if (ctx_.m_wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
+                rendergroups::render(*ctx_.m_maingroup);
+                //rendergroups::render(*ctx_.m_no_lightgroup);
+                if (ctx_.m_wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
             end_render(*ctx_.m_framebuffer);
 
-            present(ctx_.m_window);
+            swap_buffers(ctx_.m_window);
         }
     }
 

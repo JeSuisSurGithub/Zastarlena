@@ -51,6 +51,22 @@ namespace yz
         }
     }vertex;
 
+    constexpr std::array<glm::vec3, 12> LIGHT_RANGES =
+    {{
+        glm::vec3(1.f, 0.7f, 1.8),
+        glm::vec3(1.f, 0.35f, 0.44),
+        glm::vec3(1.f, 0.22f, 0.20),
+        glm::vec3(1.f, 0.14f, 0.07),
+        glm::vec3(1.f, 0.09f, 0.032),
+        glm::vec3(1.f, 0.07f, 0.017),
+        glm::vec3(1.f, 0.045f, 0.0075),
+        glm::vec3(1.f, 0.027f, 0.0028),
+        glm::vec3(1.f, 0.022f, 0.0019),
+        glm::vec3(1.f, 0.014f, 0.0007),
+        glm::vec3(1.f, 0.007f, 0.0002),
+        glm::vec3(1.f, 0.0014f, 0.000007),
+    }};
+
     typedef struct ubo_point_light_
     {
         alignas(16) glm::vec3 position;
@@ -65,7 +81,7 @@ namespace yz
         alignas(64) glm::mat4 projection;
         alignas(16) glm::vec3 camera_xyz;
         ubo_point_light point_lights[MAX_POINT_LIGHT];
-        alignas(4) GLint current_point_light_count;
+        alignas(4) GLint point_light_count;
     }ubo_shared;
 }
 

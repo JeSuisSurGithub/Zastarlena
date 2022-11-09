@@ -19,12 +19,17 @@ namespace yz
         ctx_(ctx_ &&) = delete;
         ctx_ &operator=(ctx_ &&) = delete;
 
+        bool m_wireframe;
         window m_window;
         controls m_control_ctx;
-        bool m_wireframe;
+
+        std::unique_ptr<framebuffer> m_framebuffer;
         std::unique_ptr<rendergroups::maingroup> m_maingroup;
         std::unique_ptr<rendergroups::no_lightgroup> m_no_lightgroup;
-        std::unique_ptr<framebuffer> m_framebuffer;
+
+        ubo_shared m_global_ubo;
+        GLuint m_ubo;
+
         ctx_(bool opengl_debug, bool wireframe);
         ~ctx_();
     }ctx;
