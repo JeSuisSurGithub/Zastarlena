@@ -105,41 +105,42 @@ namespace yz
         {
             u32 rand_state = std::chrono::high_resolution_clock::now().time_since_epoch().count();
             std::cout << "SEED: " << rand_state << std::endl;
-            for (m_global_ubo.point_light_count = 0; m_global_ubo.point_light_count < MAX_POINT_LIGHT; m_global_ubo.point_light_count++)
+            for (m_global_ubo.point_light_count = 0; m_global_ubo.point_light_count < 16; m_global_ubo.point_light_count++)
             {
                 glm::vec3 position = {
-                    lehmer_randrange_flt(rand_state, -20000.f, 20000.f),
-                    0.f, //lehmer_randrange_flt(rand_state, -20000.f, 20000.f),
-                    lehmer_randrange_flt(rand_state, -20000.f, 20000.f)};
-                float scale = lehmer_randrange_flt(rand_state, 1.f, 200.f);
+                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f),
+                    0.f,
+                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f)};
+                float scale = (110000.f - (glm::abs(position.x) + glm::abs(position.z))) / 100.f;
                 glm::vec3 color = {
-                    lehmer_randrange_flt(rand_state, 0.f, 100.f),
-                    lehmer_randrange_flt(rand_state, 0.f, 100.f),
-                    lehmer_randrange_flt(rand_state, 0.f, 100.f)};
+                    lehmer_randrange_flt(rand_state, 0.1f, .9f * scale),
+                    lehmer_randrange_flt(rand_state, 0.1f, .6f * scale),
+                    lehmer_randrange_flt(rand_state, 0.1f, 1.f * scale)};
 
                 add_object(*m_stargroup->m_base, "models/uvs1.obj", "textures/unoise.jpg");
                 m_stargroup->m_base->m_objects[m_global_ubo.point_light_count].m_translation = position;
                 m_stargroup->m_base->m_objects[m_global_ubo.point_light_count].m_scale = glm::vec3(scale, scale, scale);
 
                 m_global_ubo.point_lights[m_global_ubo.point_light_count].position = position;
-                m_global_ubo.point_lights[m_global_ubo.point_light_count].range = rendergroups::light_range_constants(5000);
+                m_global_ubo.point_lights[m_global_ubo.point_light_count].range = rendergroups::light_range_constants(10.f * scale);
                 m_global_ubo.point_lights[m_global_ubo.point_light_count].color = color;
-            }
-            for (std::size_t planet_count = 0; planet_count < 64; planet_count++)
-            {
-                glm::vec3 position = {
-                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f),
-                    0.f, //lehmer_randrange_flt(rand_state, -50000.f, 50000.f),
-                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f)};
-                float scale = lehmer_randrange_flt(rand_state, 1.f, 1000.f);
-                glm::vec3 color = {
-                    lehmer_randrange_flt(rand_state, 0.f, .5f),
-                    lehmer_randrange_flt(rand_state, 0.f, .5f),
-                    lehmer_randrange_flt(rand_state, 0.f, .5f)};
 
-                add_object(*m_planetgroup->m_base, "models/uvs1.obj", "textures/venus.jpg", "textures/cleanpole.png", color);
-                m_planetgroup->m_base->m_objects[planet_count].m_translation = position;
-                m_planetgroup->m_base->m_objects[planet_count].m_scale = glm::vec3(scale, scale, scale);
+                for (std::size_t planet_count = 0; planet_count < 5; planet_count++)
+                {
+                    glm::vec3 planet_position = {
+                        lehmer_randrange_flt(rand_state, position.x - scale * 20.f, position.x + scale * 20.f),
+                        0.f,
+                        lehmer_randrange_flt(rand_state, position.z - scale * 20.f, position.z + scale * 20.f)};
+                    float planet_scale = lehmer_randrange_flt(rand_state, scale * .1f, scale * 1.f);
+                    glm::vec3 planet_color = {
+                        lehmer_randrange_flt(rand_state, 0.f, .5f),
+                        lehmer_randrange_flt(rand_state, 0.f, .5f),
+                        lehmer_randrange_flt(rand_state, 0.f, .5f)};
+                    add_object(*m_planetgroup->m_base, "models/uvs1.obj", "textures/venus.jpg", "textures/cleanpole.png", planet_color);
+                    m_planetgroup->m_base->m_objects[m_global_ubo.point_light_count * 4 + planet_count].m_translation = planet_position;
+                    m_planetgroup->m_base->m_objects[m_global_ubo.point_light_count * 4 + planet_count].m_scale
+                        = glm::vec3(planet_scale, planet_scale, planet_scale);
+                }
             }
         }
         glCreateBuffers(1, &m_ubo);

@@ -65,7 +65,7 @@ void main()
             calc_point_light(point_lights[i].position, point_lights[i].range, point_lights[i].color, normal, in_world_xyz, view_direction);
 
     vec3 texture_color = texture(textures[texture_index], vec2(in_uv.s, in_uv.t + texture_offset)).rgb * 2.0;
-    vec4 hdr_color = vec4(5.0 * lighting * texture_color, 1.0);
+    vec4 hdr_color = vec4(2.0 * lighting * texture_color, 1.0);
     out_rgb = hdr_color;
 
     float brightness = dot(out_rgb.rgb, vec3(0.2126, 0.7152, 0.0722));
