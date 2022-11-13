@@ -5,29 +5,29 @@
 
 namespace yz
 {
-    typedef struct window_
+    typedef struct window
     {
-        window_(const window_ &) = delete;
-        window_ &operator=(const window_ &) = delete;
-        window_(window_ &&) = delete;
-        window_ &operator=(window_ &&) = delete;
+        window(const window &) = delete;
+        window &operator=(const window &) = delete;
+        window(window &&) = delete;
+        window &operator=(window &&) = delete;
 
         GLFWwindow* m_window;
 
-        window_(GLFWframebuffersizefun);
-        ~window_();
+        window(GLFWframebuffersizefun resize_callback);
+        ~window();
     }window;
 
-    typedef struct window_size_
+    typedef struct window_size
     {
         int width;
         int height;
     }window_size;
 
-    void update(window& window_);
-    void swap_buffers(window& window_);
-    window_size get_size(const window& window_);
-    bool should_close(const window& window_);
+    void update(window& window);
+    void swap_buffers(window& window);
+    window_size get_size(const window& window);
+    bool should_close(const window& window);
 }
 
 #endif /* YZWINDOW_HPP */

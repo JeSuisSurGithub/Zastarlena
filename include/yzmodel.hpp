@@ -21,15 +21,18 @@ namespace std
 
 namespace yz
 {
-    typedef struct model_
+    float default_height_filter(float pixel_value);
+
+    typedef struct model
     {
-        model_(const model_ &) = delete;
-        model_ &operator=(const model_ &) = delete;
-        model_(model_ &&) = delete;
-        model_ &operator=(model_ &&) = delete;
+        model(const model &) = delete;
+        model &operator=(const model &) = delete;
+        model(model &&) = delete;
+        model &operator=(model &&) = delete;
 
         const std::string m_model_path;
         const std::string m_height_map_path;
+        const glm::vec3 m_color;
 
         std::vector<vertex> m_vertices;
         std::vector<u32> m_indices;
@@ -38,16 +41,17 @@ namespace yz
         GLuint m_vao;
         GLuint m_ebo;
 
-        model_(
+        model(
             const std::string& model_path,
             glm::vec3 default_color = {1.f, 1.f, 1.f}
         );
-        model_(
+        model(
             const std::string& model_path,
             const std::string& height_map_path,
-            glm::vec3 default_color = {1.f, 1.f, 1.f}
+            glm::vec3 default_color = {1.f, 1.f, 1.f},
+            std::function<float(float)> height_filter = default_height_filter
         );
-        ~model_();
+        ~model();
 
         void load_obj(glm::vec3 default_color);
         void load_obj_to_gpu();

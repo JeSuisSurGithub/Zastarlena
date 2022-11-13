@@ -13,6 +13,7 @@
 #include <glm/gtx/hash.hpp>
 
 #include <cstdint>
+
 #include <iostream>
 #include <string>
 
@@ -22,11 +23,19 @@ namespace yz
     typedef std::uint8_t u8;
     typedef std::uint32_t u32;
 
+    #ifdef YZ_USE_SPIRV
+        #pragma message("Building with SPIR-V reading")
+        const std::string SPIRV_EXTENSION{".spv"};
+    #else
+        #pragma message("Building with on-the-fly shader compiling")
+        const std::string SPIRV_EXTENSION{""};
+    #endif
+
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
     constexpr u32 MAX_POINT_LIGHT{32};
 
-    typedef enum UNIFORM_LOCATIONS_
+    typedef enum UNIFORM_LOCATIONS
     {
         TEXTURE = 0,
         TEXTURE_INDEX = 32,
@@ -39,42 +48,26 @@ namespace yz
         TEXTURE_SCROLL_OFFSET = 40
     }UNIFORM_LOCATIONS;
 
-    typedef struct vertex_
+    typedef struct vertex
     {
         glm::vec3 xyz;
         glm::vec3 rgb;
         glm::vec2 uv;
         glm::vec3 normal;
-        bool operator==(const struct vertex_& cmp) const
+        bool operator==(const struct vertex& cmp) const
         {
             return (xyz == cmp.xyz && rgb == cmp.rgb && uv == cmp.uv && normal == cmp.normal);
         }
     }vertex;
 
-    constexpr std::array<glm::vec3, 12> LIGHT_RANGES =
-    {{
-        glm::vec3(1.f, 0.7f, 1.8),
-        glm::vec3(1.f, 0.35f, 0.44),
-        glm::vec3(1.f, 0.22f, 0.20),
-        glm::vec3(1.f, 0.14f, 0.07),
-        glm::vec3(1.f, 0.09f, 0.032),
-        glm::vec3(1.f, 0.07f, 0.017),
-        glm::vec3(1.f, 0.045f, 0.0075),
-        glm::vec3(1.f, 0.027f, 0.0028),
-        glm::vec3(1.f, 0.022f, 0.0019),
-        glm::vec3(1.f, 0.014f, 0.0007),
-        glm::vec3(1.f, 0.007f, 0.0002),
-        glm::vec3(1.f, 0.0014f, 0.000007),
-    }};
-
-    typedef struct ubo_point_light_
+    typedef struct ubo_point_light
     {
         alignas(16) glm::vec3 position;
         alignas(16) glm::vec3 range;
         alignas(16) glm::vec3 color;
     }ubo_point_light;
 
-    typedef struct ubo_shared_
+    typedef struct ubo_shared
     {
         alignas(64) glm::mat4 model;
         alignas(64) glm::mat4 view;

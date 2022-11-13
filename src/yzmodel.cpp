@@ -9,25 +9,28 @@
 
 namespace yz
 {
-    model_::model_(
+    model::model(
         const std::string& model_path,
         glm::vec3 default_color)
     :
     m_model_path(model_path),
-    m_height_map_path("")
+    m_height_map_path(""),
+    m_color(default_color)
     {
         load_obj(default_color);
         load_obj_to_gpu();
     }
 
-    model_::model_(
+    model::model(
             const std::string& model_path,
             const std::string& height_map_path,
-            glm::vec3 default_color
+            glm::vec3 default_color,
+            std::function<float(float)> height_filter
         )
     :
     m_model_path(model_path),
-    m_height_map_path(height_map_path)
+    m_height_map_path(height_map_path),
+    m_color(default_color)
     {
         load_obj(default_color);
         int width;
@@ -40,15 +43,14 @@ namespace yz
         for (std::size_t index = 0; index < m_vertices.size(); index++)
         {
             int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
-            float displacement = (255 - data[pixel_index]) / 255.0 + 0.5;
-            displacement = std::clamp(displacement, 1.0f, 1.2f);
-            m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * displacement;
+            float pixel_value = data[pixel_index] / 255.0;
+            m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * height_filter(pixel_value);
         }
         stbi_image_free(data);
         load_obj_to_gpu();
     }
 
-    void model_::load_obj(glm::vec3 default_color)
+    void model::load_obj(glm::vec3 default_color)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -99,7 +101,7 @@ namespace yz
         }
     }
 
-    void model_::load_obj_to_gpu()
+    void model::load_obj_to_gpu()
     {
         glCreateBuffers(1, &m_vbo);
         glNamedBufferStorage(m_vbo, m_vertices.size() * sizeof(vertex), m_vertices.data(), GL_DYNAMIC_STORAGE_BIT);
@@ -128,11 +130,18 @@ namespace yz
         glVertexArrayAttribBinding(m_vao, 3, 0);
     }
 
-    model_::~model_()
+    model::~model()
     {
         glDeleteVertexArrays(1, &m_vao);
         glDeleteBuffers(1, &m_vbo);
         glDeleteBuffers(1, &m_ebo);
+    }
+
+    float default_height_filter(float pixel_value)
+    {
+        float displacement =  (1.f - pixel_value) + 1.0;
+        return displacement / 2.f;
+        //return std::clamp(displacement, 1.0f, 1.2f);
     }
 
     void draw(model& model_)

@@ -2,16 +2,19 @@
 
 namespace yz
 {
-    shader_::shader_(const std::string& vertpath, const std::string& fragpath)
+    shader::shader(const std::string& vertpath, const std::string& fragpath)
     {
         std::vector<u8> vertex_shader_buf = read_file(vertpath);
         GLuint vertex_sid = glCreateShader(GL_VERTEX_SHADER);
         vertex_shader_buf.push_back('\0');
         const char* ptr_holder = reinterpret_cast<const char*>(vertex_shader_buf.data());
-        glShaderSource(vertex_sid, 1, &ptr_holder, NULL);
-        glCompileShader(vertex_sid);
-        //glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
-        //glSpecializeShader(vertex_sid, "main", 0, 0, 0);
+        #ifdef YZ_USE_SPIRV
+            glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
+            glSpecializeShader(vertex_sid, "main", 0, 0, 0);
+        #else
+            glShaderSource(vertex_sid, 1, &ptr_holder, NULL);
+            glCompileShader(vertex_sid);
+        #endif
 
         int status = 0;
         glGetShaderiv(vertex_sid, GL_COMPILE_STATUS, &status);
@@ -22,10 +25,13 @@ namespace yz
         GLuint fragment_sid = glCreateShader(GL_FRAGMENT_SHADER);
         fragment_shader_buf.push_back('\0');
         ptr_holder = reinterpret_cast<const char*>(fragment_shader_buf.data());
-        glShaderSource(fragment_sid, 1, &ptr_holder, NULL);
-        glCompileShader(fragment_sid);
-        //glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
-        //glSpecializeShader(fragment_sid, "main", 0, 0, 0);
+        #ifdef YZ_USE_SPIRV
+            glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
+            glSpecializeShader(fragment_sid, "main", 0, 0, 0);
+        #else
+            glShaderSource(fragment_sid, 1, &ptr_holder, NULL);
+            glCompileShader(fragment_sid);
+        #endif
 
         status = 0;
         glGetShaderiv(fragment_sid, GL_COMPILE_STATUS, &status);
@@ -45,14 +51,14 @@ namespace yz
         glDeleteShader(fragment_sid);
     }
 
-    shader_::~shader_()
+    shader::~shader()
     {
         glDeleteProgram(m_id);
     }
 
-    void bind(shader& shader_)
+    void bind(shader& program)
     {
-        glUseProgram(shader_.m_id);
+        glUseProgram(program.m_id);
     }
 
     void update_matrix4(shader& program, GLint location, const glm::mat4& matrix)

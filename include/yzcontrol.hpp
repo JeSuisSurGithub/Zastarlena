@@ -12,15 +12,16 @@ namespace yz
         BACKWARD    = GLFW_KEY_S,
         RIGHT       = GLFW_KEY_D,
         EXIT        = GLFW_KEY_ESCAPE,
-        SHOW_MOUSE  = GLFW_KEY_LEFT_ALT
+        SHOW_MOUSE  = GLFW_KEY_LEFT_ALT,
+        SPEED  = GLFW_KEY_LEFT_SHIFT
     };
 
-    typedef struct controls_
+    typedef struct controls
     {
-        controls_(const controls_ &) = delete;
-        controls_ &operator=(const controls_ &) = delete;
-        controls_(controls_ &&) = delete;
-        controls_ &operator=(controls_ &&) = delete;
+        controls(const controls &) = delete;
+        controls &operator=(const controls &) = delete;
+        controls(controls &&) = delete;
+        controls &operator=(controls &&) = delete;
 
         bool m_show_mouse;
         float m_move_speed;
@@ -28,11 +29,11 @@ namespace yz
         float m_horizontal_angle;
         float m_vertical_angle;
         u32 m_show_mouse_cooldown;
-        u32 m_show_mouse_cooldown_max;
+        u32 m_show_mouse_cooldown_length;
         glm::vec3 m_camera_xyz;
 
-        controls_(GLFWwindow* window);
-        ~controls_();
+        controls(GLFWwindow* window);
+        ~controls();
     }controls;
 
     glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time);

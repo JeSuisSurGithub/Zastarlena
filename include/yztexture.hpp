@@ -5,20 +5,19 @@
 
 namespace yz
 {
-    typedef struct texture_
+    typedef struct texture
     {
-        texture_(const texture_ &) = delete;
-        texture_ &operator=(const texture_ &) = delete;
-        texture_(texture_ &&) = delete;
-        texture_ &operator=(texture_ &&) = delete;
+        texture(const texture &) = delete;
+        texture &operator=(const texture &) = delete;
+        texture(texture &&) = delete;
+        texture &operator=(texture &&) = delete;
 
         GLuint m_id;
         u32 m_index;
-
         const std::string m_texture_path;
 
-        texture_(const std::string& texture_path, u32 index);
-        ~texture_();
+        texture(const std::string& texture_path, u32 index);
+        ~texture();
     }texture;
 
     void bind(texture& texture_);

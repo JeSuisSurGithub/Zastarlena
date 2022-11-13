@@ -2,10 +2,10 @@
 
 namespace yz
 {
-    framebuffer_::framebuffer_(int width, int height)
+    framebuffer::framebuffer(i32 width, i32 height)
     :
-    m_combine("shaders/combine.vert", "shaders/combine.frag"),
-    m_blur("shaders/blur.vert", "shaders/blur.frag"),
+    m_combine("shaders/combine.vert" + SPIRV_EXTENSION, "shaders/combine.frag" + SPIRV_EXTENSION),
+    m_blur("shaders/blur.vert" + SPIRV_EXTENSION, "shaders/blur.frag" + SPIRV_EXTENSION),
     m_width(width),
     m_height(height)
     {
@@ -63,7 +63,7 @@ namespace yz
         update_int(m_combine, UNIFORM_LOCATIONS::COMBINE_BLOOM, 1);
     }
 
-    framebuffer_::~framebuffer_()
+    framebuffer::~framebuffer()
     {
         glDeleteVertexArrays(1, &m_vao);
         glDeleteBuffers(1, &m_vbo);

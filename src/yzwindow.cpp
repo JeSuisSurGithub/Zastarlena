@@ -2,7 +2,7 @@
 
 namespace yz
 {
-    window_::window_(GLFWframebuffersizefun framebuffer_size_callback)
+    window::window(GLFWframebuffersizefun resize_callback)
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -16,38 +16,38 @@ namespace yz
         }
 
         glfwMakeContextCurrent(m_window);
-        glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+        glfwSetFramebufferSizeCallback(m_window, resize_callback);
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 
-    window_::~window_()
+    window::~window()
     {
         glfwDestroyWindow(m_window);
         glfwTerminate();
     }
 
-    void update(window& window_)
+    void update(window& window)
     {
         glfwPollEvents();
-        if (glfwGetKey(window_.m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window_.m_window, true);
+        if (glfwGetKey(window.m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window.m_window, true);
     }
 
-    void swap_buffers(window& window_)
+    void swap_buffers(window& window)
     {
-        glfwSwapBuffers(window_.m_window);
+        glfwSwapBuffers(window.m_window);
     }
 
-    window_size get_size(const window& window_)
+    window_size get_size(const window& window)
     {
         int width;
         int height;
-        glfwGetWindowSize(window_.m_window, &width, &height);
+        glfwGetWindowSize(window.m_window, &width, &height);
         return {width, height};
     }
 
-    bool should_close(const window& window_)
+    bool should_close(const window& window)
     {
-        return glfwWindowShouldClose(window_.m_window);
+        return glfwWindowShouldClose(window.m_window);
     }
 }

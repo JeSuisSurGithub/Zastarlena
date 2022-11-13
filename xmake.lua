@@ -1,7 +1,7 @@
 set_xmakever("2.2.5")
 
 set_project("YuZhou")
-set_version("1.4.0")
+set_version("1.5.0")
 set_languages("cxx17")
 
 add_requires("opengl", "glfw", "glslang", {configs = {binaryonly = true}})
@@ -17,8 +17,9 @@ target("yuzhou")
         "src/yzframebuffer.cpp",
         "src/yzmodel.cpp",
         "src/yzrendergroup.cpp",
-        "src/rendergroups/maingroup.cpp",
-        "src/rendergroups/no_light.cpp",
+        "src/rendergroups/planetgroup.cpp",
+        "src/rendergroups/stargroup.cpp",
+        "src/yzrand.cpp",
         "src/yzshader.cpp",
         "src/yztexture.cpp",
         "src/yzwindow.cpp")
@@ -47,22 +48,22 @@ target("yuzhou")
     end
 
     -- Shaders
-    -- add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
-    -- add_files(
-    --     "shaders/blur.vert",
-    --     "shaders/blur.frag",
-    --     "shaders/combine.vert",
-    --     "shaders/combine.frag",
-    --     "shaders/main.vert",
-    --     "shaders/main.frag",
-    --     "shaders/no_lighting.vert",
-    --     "shaders/no_lighting.frag")
+    add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
+    add_files(
+        "shaders/blur.vert",
+        "shaders/blur.frag",
+        "shaders/combine.vert",
+        "shaders/combine.frag",
+        "shaders/stars.vert",
+        "shaders/stars.frag",
+        "shaders/planets.vert",
+        "shaders/planets.frag")
 
     -- Assets
     after_build(function (target)
         os.cp(target:targetfile(), "build")
         os.cp("models", "build")
-        os.cp("textures", "build")
         os.cp("shaders", "build")
+        os.cp("textures", "build")
     end)
 target_end()

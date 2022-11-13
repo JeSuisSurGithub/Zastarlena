@@ -5,7 +5,7 @@
 
 namespace yz
 {
-    texture_::texture_(const std::string& texture_path, u32 index)
+    texture::texture(const std::string& texture_path, u32 index)
     :
     m_index(index),
     m_texture_path(texture_path)
@@ -28,7 +28,7 @@ namespace yz
         stbi_image_free(data);
     }
 
-    texture_::~texture_()
+    texture::~texture()
     {
         glDeleteTextures(1, &m_id);
     }

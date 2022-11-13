@@ -7,7 +7,7 @@ layout (location = 35) uniform sampler2D main_image;
 layout (location = 36) uniform sampler2D bloom;
 
 const float GAMMA = 1.0;
-const float EXPOSURE = 0.5;
+const float EXPOSURE = 0.25;
 
 void main()
 {

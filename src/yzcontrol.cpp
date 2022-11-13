@@ -1,24 +1,24 @@
 #include <yzcontrol.hpp>
 
-float g_fov = 75.f;
+float g_fov = 45.f;
 
 namespace yz
 {
-    controls_::controls_(GLFWwindow* window)
+    controls::controls(GLFWwindow* window)
     :
     m_show_mouse(false),
-    m_move_speed(.25f),
-    m_view_speed(.00025f),
+    m_move_speed(2.f),
+    m_view_speed(.0002f),
     m_horizontal_angle(3.14f),
     m_vertical_angle(0.f),
     m_show_mouse_cooldown(0),
-    m_show_mouse_cooldown_max(500), // 500ms
+    m_show_mouse_cooldown_length(500), // 500ms
     m_camera_xyz(glm::vec3(0.f, 0.f, 5.f))
     {
         glfwSetScrollCallback(window, scroll_callback);
     }
 
-    controls_::~controls_() {}
+    controls::~controls() {}
 
     glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time)
     {
@@ -29,7 +29,7 @@ namespace yz
 
         // Check for mouse grab toggle
         context.m_show_mouse_cooldown += delta_time;
-        if ((context.m_show_mouse_cooldown >= context.m_show_mouse_cooldown_max) && glfwGetKey(window, KEYMAP::SHOW_MOUSE) == GLFW_PRESS)
+        if ((context.m_show_mouse_cooldown >= context.m_show_mouse_cooldown_length) && glfwGetKey(window, KEYMAP::SHOW_MOUSE) == GLFW_PRESS)
         {
             context.m_show_mouse_cooldown = 0;
             context.m_show_mouse = !context.m_show_mouse;
@@ -63,21 +63,26 @@ namespace yz
         );
         glm::vec3 up = glm::cross(right, forward);
 
+        float speed_factor = 1.f;
+        if (glfwGetKey(window, KEYMAP::SPEED) == GLFW_PRESS)
+        {
+            speed_factor = 10.f;
+        }
         if (glfwGetKey(window, KEYMAP::FORWARD) == GLFW_PRESS)
         {
-            context.m_camera_xyz += forward * delta_time * context.m_move_speed;
+            context.m_camera_xyz += forward * delta_time * context.m_move_speed * speed_factor;
         }
         if (glfwGetKey(window, KEYMAP::BACKWARD) == GLFW_PRESS)
         {
-            context.m_camera_xyz -= forward * delta_time * context.m_move_speed;
+            context.m_camera_xyz -= forward * delta_time * context.m_move_speed * speed_factor;
         }
         if (glfwGetKey(window, KEYMAP::RIGHT) == GLFW_PRESS)
         {
-            context.m_camera_xyz += right * delta_time * context.m_move_speed;
+            context.m_camera_xyz += right * delta_time * context.m_move_speed * speed_factor;
         }
         if (glfwGetKey(window, KEYMAP::LEFT) == GLFW_PRESS)
         {
-            context.m_camera_xyz -= right * delta_time * context.m_move_speed;
+            context.m_camera_xyz -= right * delta_time * context.m_move_speed * speed_factor;
         }
         return glm::lookAt(context.m_camera_xyz, context.m_camera_xyz + forward, up);
     }
@@ -90,5 +95,6 @@ namespace yz
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     {
         g_fov -= yoffset * 2;
+        g_fov = std::clamp(g_fov, 10.f, 90.f);
     }
 }

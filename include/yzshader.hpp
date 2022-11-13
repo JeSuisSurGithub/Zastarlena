@@ -8,19 +8,19 @@
 
 namespace yz
 {
-    typedef struct shader_
+    typedef struct shader
     {
-        shader_(const shader_ &) = delete;
-        shader_ &operator=(const shader_ &) = delete;
-        shader_(shader_ &&) = delete;
-        shader_ &operator=(shader_ &&) = delete;
+        shader(const shader &) = delete;
+        shader &operator=(const shader &) = delete;
+        shader(shader &&) = delete;
+        shader &operator=(shader &&) = delete;
 
         GLuint m_id;
-        shader_(const std::string&, const std::string&);
-        ~shader_();
+        shader(const std::string& vertpath, const std::string& fragpath);
+        ~shader();
     }shader;
 
-    void bind(shader& shader);
+    void bind(shader& program);
     void update_matrix4(shader& program, GLint location, const glm::mat4& matrix);
     void update_uint_array(shader& program, GLint location, GLuint* uintv, std::size_t size);
     void update_int_array(shader& program, GLint location, GLint* intv, std::size_t size);

@@ -17,16 +17,16 @@ namespace yz
          1.0f,  1.0f,  1.0f, 1.0f
     };
 
-    constexpr GLfloat CLEAR_COLOR[] = {0.005f, 0.0f, 0.01f, 1.0f};
+    constexpr GLfloat CLEAR_COLOR[4] = {0.005f, 0.0f, 0.01f, 1.0f};
     constexpr GLfloat CLEAR_DEPTH = 1.f;
     constexpr GLint CLEAR_STENCIL = 1;
 
-    typedef struct framebuffer_
+    typedef struct framebuffer
     {
-        framebuffer_(const framebuffer_ &) = delete;
-        framebuffer_ &operator=(const framebuffer_ &) = delete;
-        framebuffer_(framebuffer_ &&) = delete;
-        framebuffer_ &operator=(framebuffer_ &&) = delete;
+        framebuffer(const framebuffer &) = delete;
+        framebuffer &operator=(const framebuffer &) = delete;
+        framebuffer(framebuffer &&) = delete;
+        framebuffer &operator=(framebuffer &&) = delete;
 
         shader m_combine;
         shader m_blur;
@@ -41,11 +41,11 @@ namespace yz
         GLuint m_blurfbo[2];
         GLuint m_blurfb_texture[2];
 
-        int m_width;
-        int m_height;
+        i32 m_width;
+        i32 m_height;
 
-        framebuffer_(int width, int height);
-        ~framebuffer_();
+        framebuffer(i32 width, i32 height);
+        ~framebuffer();
     }framebuffer;
 
     void prepare_render(framebuffer& framebuffer_);
