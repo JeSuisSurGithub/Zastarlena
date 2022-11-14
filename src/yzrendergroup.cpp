@@ -30,7 +30,7 @@ namespace yz
 
     rendergroup::rendergroup(const std::string& vert_path, const std::string& frag_path)
     :
-    m_program(std::make_unique<shader>(vert_path, frag_path)),
+    m_program(std::make_unique<shader>(vert_path, frag_path, YZ_LOAD_SPIRV)),
     m_textures(),
     m_models(),
     m_objects()

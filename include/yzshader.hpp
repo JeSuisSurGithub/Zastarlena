@@ -16,7 +16,7 @@ namespace yz
         shader &operator=(shader &&) = delete;
 
         GLuint m_id;
-        shader(const std::string& vertpath, const std::string& fragpath);
+        shader(const std::string& vertpath, const std::string& fragpath, bool load_spirv);
         ~shader();
     }shader;
 

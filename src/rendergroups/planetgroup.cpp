@@ -7,7 +7,7 @@ namespace rendergroups
 {
     planetgroup::planetgroup()
     {
-        m_base = std::make_unique<rendergroup>("shaders/planets.vert" + SPIRV_EXTENSION, "shaders/planets.frag" + SPIRV_EXTENSION);
+        m_base = std::make_unique<rendergroup>("shaders/planets.vert", "shaders/planets.frag");
     }
 
     planetgroup::~planetgroup() {}

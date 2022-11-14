@@ -1,6 +1,8 @@
 #ifndef YZCOMMON_HPP
 #define YZCOMMON_HPP
 
+#define YZ_LOAD_SPIRV true
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -22,14 +24,6 @@ namespace yz
     typedef std::int32_t i32;
     typedef std::uint8_t u8;
     typedef std::uint32_t u32;
-
-    #ifdef YZ_USE_SPIRV
-        #pragma message("Building with SPIR-V reading")
-        const std::string SPIRV_EXTENSION{".spv"};
-    #else
-        #pragma message("Building with on-the-fly shader compiling")
-        const std::string SPIRV_EXTENSION{""};
-    #endif
 
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};

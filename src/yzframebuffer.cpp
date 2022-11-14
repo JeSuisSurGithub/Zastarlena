@@ -4,8 +4,8 @@ namespace yz
 {
     framebuffer::framebuffer(i32 width, i32 height)
     :
-    m_combine("shaders/combine.vert" + SPIRV_EXTENSION, "shaders/combine.frag" + SPIRV_EXTENSION),
-    m_blur("shaders/blur.vert" + SPIRV_EXTENSION, "shaders/blur.frag" + SPIRV_EXTENSION),
+    m_combine("shaders/combine.vert", "shaders/combine.frag", YZ_LOAD_SPIRV),
+    m_blur("shaders/blur.vert", "shaders/blur.frag", YZ_LOAD_SPIRV),
     m_width(width),
     m_height(height)
     {

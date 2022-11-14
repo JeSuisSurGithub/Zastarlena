@@ -2,36 +2,42 @@
 
 namespace yz
 {
-    shader::shader(const std::string& vertpath, const std::string& fragpath)
+    shader::shader(const std::string& vertpath, const std::string& fragpath, bool load_spirv)
     {
-        std::vector<u8> vertex_shader_buf = read_file(vertpath);
+        std::vector<u8> vertex_shader_buf = read_file(vertpath + (load_spirv ? ".spv" : ""));
         GLuint vertex_sid = glCreateShader(GL_VERTEX_SHADER);
-        vertex_shader_buf.push_back('\0');
-        const char* ptr_holder = reinterpret_cast<const char*>(vertex_shader_buf.data());
-        #ifdef YZ_USE_SPIRV
+        if (load_spirv)
+        {
             glShaderBinary(1, &vertex_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, vertex_shader_buf.data(), vertex_shader_buf.size());
             glSpecializeShader(vertex_sid, "main", 0, 0, 0);
-        #else
+        }
+        else
+        {
+            vertex_shader_buf.push_back('\0');
+            const char* ptr_holder = reinterpret_cast<const char*>(vertex_shader_buf.data());
             glShaderSource(vertex_sid, 1, &ptr_holder, NULL);
             glCompileShader(vertex_sid);
-        #endif
+        }
 
         int status = 0;
         glGetShaderiv(vertex_sid, GL_COMPILE_STATUS, &status);
         if (!status)
             throw std::runtime_error("Invalid vertex shader\n");
 
-        std::vector<u8> fragment_shader_buf = read_file(fragpath);
+        std::vector<u8> fragment_shader_buf = read_file(fragpath + (load_spirv ? ".spv" : ""));
         GLuint fragment_sid = glCreateShader(GL_FRAGMENT_SHADER);
-        fragment_shader_buf.push_back('\0');
-        ptr_holder = reinterpret_cast<const char*>(fragment_shader_buf.data());
-        #ifdef YZ_USE_SPIRV
+        if (load_spirv)
+        {
             glShaderBinary(1, &fragment_sid, GL_SHADER_BINARY_FORMAT_SPIR_V, fragment_shader_buf.data(), fragment_shader_buf.size());
             glSpecializeShader(fragment_sid, "main", 0, 0, 0);
-        #else
+        }
+        else
+        {
+            fragment_shader_buf.push_back('\0');
+            const char* ptr_holder = reinterpret_cast<const char*>(fragment_shader_buf.data());
             glShaderSource(fragment_sid, 1, &ptr_holder, NULL);
             glCompileShader(fragment_sid);
-        #endif
+        }
 
         status = 0;
         glGetShaderiv(fragment_sid, GL_COMPILE_STATUS, &status);

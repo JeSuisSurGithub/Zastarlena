@@ -1,4 +1,3 @@
-#define YZ_USE_SPIRV
 #include <yzctx.hpp>
 
 int main()

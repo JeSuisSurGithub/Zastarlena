@@ -9,7 +9,7 @@ namespace rendergroups
     :
     m_texture_offset_count(0)
     {
-        m_base = std::make_unique<rendergroup>("shaders/stars.vert" + SPIRV_EXTENSION, "shaders/stars.frag" + SPIRV_EXTENSION);
+        m_base = std::make_unique<rendergroup>("shaders/stars.vert", "shaders/stars.frag");
     }
 
     stargroup::~stargroup() {}
