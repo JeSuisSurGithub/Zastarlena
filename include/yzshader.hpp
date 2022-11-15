@@ -22,6 +22,7 @@ namespace yz
 
     void bind(shader& program);
     void update_matrix4(shader& program, GLint location, const glm::mat4& matrix);
+    void update_vec2(shader& program, GLint location, const glm::vec2& vec_);
     void update_uint_array(shader& program, GLint location, GLuint* uintv, usz size);
     void update_int_array(shader& program, GLint location, GLint* intv, usz size);
     void update_uint(shader& program, GLint location, GLuint uint_);

@@ -14,7 +14,7 @@ namespace yz
 
         GLFWwindow* m_window;
 
-        window(GLFWframebuffersizefun resize_callback);
+        window();
         ~window();
     }window;
 

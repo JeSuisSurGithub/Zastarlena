@@ -5,8 +5,8 @@ layout(location = 2) in vec2 in_uv;
 layout(location = 3) in vec3 in_world_normal;
 layout(location = 4) in vec3 in_world_xyz;
 
-layout(location = 0) out vec4 out_rgb;
-layout(location = 1) out vec4 out_bright_rgb;
+layout(location = 0) out vec4 out_rgba;
+layout(location = 1) out vec4 out_rgba_bright;
 
 #define MAX_POINT_LIGHT 32
 #define MAX_TEXTURE_COUNT 32
@@ -30,7 +30,7 @@ layout (std140, binding = 0) uniform shared_ubo
 
 layout(location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
 layout(location = 32) uniform uint texture_index;
-layout(location = 40) uniform float texture_offset;
+layout(location = 41) uniform float texture_offset;
 
 const float AMBIENT_STRENGTH = 0.1;
 
@@ -66,11 +66,11 @@ void main()
 
     vec3 texture_color = texture(textures[texture_index], vec2(in_uv.s, in_uv.t + texture_offset)).rgb * 2.0;
     vec4 hdr_color = vec4(1.5 * lighting * texture_color, 1.0);
-    out_rgb = hdr_color;
+    out_rgba = hdr_color;
 
-    float brightness = dot(out_rgb.rgb, vec3(0.2126, 0.7152, 0.0722));
+    float brightness = dot(out_rgba.rgb, vec3(0.2126, 0.7152, 0.0722));
     if (brightness > 1.0)
-        out_bright_rgb = vec4(out_rgb.rgb, 1.0);
+        out_rgba_bright = vec4(out_rgba.rgb, 1.0);
     else
-        out_bright_rgb = vec4(0.0, 0.0, 0.0, 1.0);
+        out_rgba_bright = vec4(0.0, 0.0, 0.0, 1.0);
 }

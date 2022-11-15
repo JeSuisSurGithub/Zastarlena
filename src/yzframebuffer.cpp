@@ -1,11 +1,13 @@
+#include "yzcommon.hpp"
 #include <yzframebuffer.hpp>
 
 namespace yz
 {
     framebuffer::framebuffer(i32 width, i32 height)
     :
-    m_combine("shaders/combine.vert", "shaders/combine.frag", YZ_LOAD_SPIRV),
-    m_blur("shaders/blur.vert", "shaders/blur.frag", YZ_LOAD_SPIRV),
+    m_final("shaders/quad.vert", "shaders/final.frag", YZ_LOAD_SPIRV),
+    m_upsampler("shaders/quad.vert", "shaders/upsampler.frag", YZ_LOAD_SPIRV),
+    m_downsampler("shaders/quad.vert", "shaders/downsampler.frag", YZ_LOAD_SPIRV),
     m_width(width),
     m_height(height)
     {
@@ -43,24 +45,30 @@ namespace yz
         if (glCheckNamedFramebufferStatus(m_fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Framebuffer incomplete\n");
 
-        glCreateFramebuffers(2, m_blurfbo);
-        glCreateTextures(GL_TEXTURE_2D, 2, m_blurfb_texture);
-        for (usz index = 0; index < 2; index++)
+
+        glm::vec2 mip_size{m_width, m_height};
+        glCreateFramebuffers(1, &m_bloom_fbo);
+        glCreateTextures(GL_TEXTURE_2D, BLOOM_LEVEL, m_bloom_fbtextures);
+        for (usz index = 0; index < BLOOM_LEVEL; index++)
         {
-            glTextureStorage2D(m_blurfb_texture[index], 1, GL_RGBA16F, m_width, m_height);
-            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glNamedFramebufferTexture(m_blurfbo[index], GL_COLOR_ATTACHMENT0, m_blurfb_texture[index], 0);
+            mip_size /= 2.f;
+            m_bloom_levels[index] = mip_size;
 
-            if (glCheckNamedFramebufferStatus(m_blurfbo[index], GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                throw std::runtime_error("Framebuffer incomplete\n");
+            glTextureStorage2D(m_bloom_fbtextures[index], 1, GL_RGBA16F, mip_size.x, mip_size.y);
+            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
+        glNamedFramebufferDrawBuffers(m_bloom_fbo, 1, attachments);
+        glNamedFramebufferTexture(m_bloom_fbo, GL_COLOR_ATTACHMENT0, m_bloom_fbtextures[0], 0);
+        if (glCheckNamedFramebufferStatus(m_bloom_fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw std::runtime_error("Framebuffer incomplete\n");
 
-        update_int(m_blur, UNIFORM_LOCATIONS::BLUR_INPUT_IMAGE, 0);
-        update_int(m_combine, UNIFORM_LOCATIONS::COMBINE_MAIN_SCENE, 0);
-        update_int(m_combine, UNIFORM_LOCATIONS::COMBINE_BLOOM, 1);
+        update_int(m_upsampler, UNIFORM_LOCATIONS::UPSAMPLE_TEXTURE, 0);
+        update_int(m_downsampler, UNIFORM_LOCATIONS::DOWNSAMPLE_TEXTURE, 0);
+        update_int(m_final, UNIFORM_LOCATIONS::COMBINE_MAIN_SCENE, 0);
+        update_int(m_final, UNIFORM_LOCATIONS::COMBINE_BLOOM, 1);
     }
 
     framebuffer::~framebuffer()
@@ -70,49 +78,63 @@ namespace yz
         glDeleteFramebuffers(1, &m_fbo);
         glDeleteTextures(2, m_fbtexture);
         glDeleteRenderbuffers(1, &m_rbo);
-        glDeleteFramebuffers(2, m_blurfbo);
-        glDeleteTextures(2, m_blurfb_texture);
+        glDeleteFramebuffers(1, &m_bloom_fbo);
+        glDeleteTextures(5, m_bloom_fbtextures);
     }
 
-    void prepare_render(framebuffer& framebuffer_)
+    void prepare_render(framebuffer& fb_)
     {
         glClearNamedFramebufferfv(0, GL_COLOR, 0, CLEAR_COLOR);
         glClearNamedFramebufferfv(0, GL_DEPTH, 0, &CLEAR_DEPTH);
         glClearNamedFramebufferiv(0, GL_STENCIL, 0, &CLEAR_STENCIL);
-        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_COLOR, 0, CLEAR_COLOR);
-        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_DEPTH, 0, &CLEAR_DEPTH);
-        glClearNamedFramebufferiv(framebuffer_.m_fbo, GL_STENCIL, 0, &CLEAR_STENCIL);
-        glClearNamedFramebufferfv(framebuffer_.m_fbo, GL_COLOR, 1, CLEAR_COLOR);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_fbo);
+        glClearNamedFramebufferfv(fb_.m_fbo, GL_COLOR, 0, CLEAR_COLOR);
+        glClearNamedFramebufferfv(fb_.m_fbo, GL_DEPTH, 0, &CLEAR_DEPTH);
+        glClearNamedFramebufferiv(fb_.m_fbo, GL_STENCIL, 0, &CLEAR_STENCIL);
+        glClearNamedFramebufferfv(fb_.m_fbo, GL_COLOR, 1, CLEAR_COLOR);
+        glBindFramebuffer(GL_FRAMEBUFFER, fb_.m_fbo);
     }
 
-    void end_render(framebuffer& framebuffer_)
+    void end_render(framebuffer& fb_)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        bool horizontal = true;
-        bool first_iteration = true;
-        usz amount = 8;
-        bind(framebuffer_.m_blur);
-        for (usz count = 0; count < amount; count++)
+        glBindFramebuffer(GL_FRAMEBUFFER, fb_.m_bloom_fbo);
         {
-            update_bool(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_HORIZONTAL, horizontal);
-            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_blurfbo[horizontal]);
-            glBindTextureUnit(0, first_iteration ? framebuffer_.m_fbtexture[1] : framebuffer_.m_blurfb_texture[!horizontal]);
-
-            glBindVertexArray(framebuffer_.m_vao);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-            horizontal = !horizontal;
-            if (first_iteration)
-                first_iteration = false;
+            bind(fb_.m_downsampler);
+            update_vec2(fb_.m_downsampler,
+                UNIFORM_LOCATIONS::DOWNSAMPLE_RESOLUTION, {fb_.m_width, fb_.m_height});
+            glBindTextureUnit(0, fb_.m_fbtexture[1]);
+            for (usz index = 0; index < BLOOM_LEVEL; index++)
+            {
+                glViewport(0, 0, fb_.m_bloom_levels[index].x, fb_.m_bloom_levels[index].y);
+                glNamedFramebufferTexture(fb_.m_bloom_fbo, GL_COLOR_ATTACHMENT0, fb_.m_bloom_fbtextures[index], 0);
+                glBindVertexArray(fb_.m_vao);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindVertexArray(0);
+                update_vec2(fb_.m_downsampler,
+                    UNIFORM_LOCATIONS::DOWNSAMPLE_RESOLUTION, fb_.m_bloom_levels[index]);
+                glBindTextureUnit(0, fb_.m_bloom_fbtextures[index]);
+            }
+        }
+        {
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
+            for (isz index = BLOOM_LEVEL - 1; index > 0; index--)
+            {
+                glBindTextureUnit(0, fb_.m_bloom_fbtextures[index]);
+                glViewport(0, 0, fb_.m_bloom_levels[index - 1].x, fb_.m_bloom_levels[index - 1].y);
+                glNamedFramebufferTexture(fb_.m_bloom_fbo, GL_COLOR_ATTACHMENT0, fb_.m_bloom_fbtextures[index - 1], 0);
+                glBindVertexArray(fb_.m_vao);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindVertexArray(0);
+            }
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, fb_.m_width, fb_.m_height);
 
-        bind(framebuffer_.m_combine);
-        glBindTextureUnit(0, framebuffer_.m_fbtexture[0]);
-        glBindTextureUnit(1, framebuffer_.m_blurfb_texture[!horizontal]);
-        glBindVertexArray(framebuffer_.m_vao);
+        bind(fb_.m_final);
+        glBindTextureUnit(0, fb_.m_fbtexture[0]);
+        glBindTextureUnit(1, fb_.m_bloom_fbtextures[0]);
+        glBindVertexArray(fb_.m_vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }

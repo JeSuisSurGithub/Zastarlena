@@ -72,6 +72,11 @@ namespace yz
         glProgramUniformMatrix4fv(program.m_id, location, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
+    void update_vec2(shader& program, GLint location, const glm::vec2& vec_)
+    {
+        glProgramUniform2f(program.m_id, location, vec_.x, vec_.y);
+    }
+
     void update_uint_array(shader& program, GLint location, GLuint* uintv, usz size)
     {
         glProgramUniform1uiv(program.m_id, location, size, uintv);

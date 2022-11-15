@@ -46,7 +46,6 @@ namespace yz
         const void* user_param);
 
     void run(ctx& ctx_);
-    void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
 }
 
 #endif /* YZCTX_HPP */

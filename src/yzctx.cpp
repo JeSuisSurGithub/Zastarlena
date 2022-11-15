@@ -55,7 +55,7 @@ namespace yz
     ctx::ctx(bool opengl_debug, bool wireframe)
     :
     m_wireframe(wireframe),
-    m_window(framebuffer_resize_callback),
+    m_window(),
     m_control_ctx(m_window.m_window)
     {
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -141,7 +141,10 @@ namespace yz
             ctx_.m_global_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
 
             if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
+            {
+                glViewport(0, 0, dimensions.width, dimensions.height);
                 ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
+            }
 
             update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
             rendergroups::update(*ctx_.m_stargroup, delta_time);
@@ -160,10 +163,5 @@ namespace yz
             end_render(*ctx_.m_framebuffer);
             swap_buffers(ctx_.m_window);
         }
-    }
-
-    void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
-    {
-        glViewport(0, 0, width, height);
     }
 }

@@ -50,10 +50,10 @@ target("yuzhou")
     -- Shaders
     add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
     add_files(
-        "shaders/blur.vert",
-        "shaders/blur.frag",
-        "shaders/combine.vert",
-        "shaders/combine.frag",
+        "shaders/quad.vert",
+        "shaders/upsampler.frag",
+        "shaders/downsampler.frag",
+        "shaders/final.frag",
         "shaders/stars.vert",
         "shaders/stars.frag",
         "shaders/planets.vert",

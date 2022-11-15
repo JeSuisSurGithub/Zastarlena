@@ -2,7 +2,7 @@
 
 namespace yz
 {
-    window::window(GLFWframebuffersizefun resize_callback)
+    window::window()
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -16,7 +16,6 @@ namespace yz
         }
 
         glfwMakeContextCurrent(m_window);
-        glfwSetFramebufferSizeCallback(m_window, resize_callback);
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 

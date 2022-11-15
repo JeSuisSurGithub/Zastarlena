@@ -24,6 +24,7 @@ namespace yz
     typedef std::int32_t i32;
     typedef std::uint8_t u8;
     typedef std::uint32_t u32;
+    typedef signed long long int isz;
     typedef std::size_t usz;
 
     const std::string WINDOW_NAME{"YuZhou"};
@@ -38,9 +39,10 @@ namespace yz
         INVERSE_TRANSFORM = 34,
         COMBINE_MAIN_SCENE = 35,
         COMBINE_BLOOM = 36,
-        BLUR_INPUT_IMAGE = 37,
-        BLUR_HORIZONTAL = 38,
-        TEXTURE_SCROLL_OFFSET = 40
+        UPSAMPLE_TEXTURE = 37,
+        DOWNSAMPLE_TEXTURE = 39,
+        DOWNSAMPLE_RESOLUTION = 40,
+        TEXTURE_SCROLL_OFFSET = 41
     }UNIFORM_LOCATIONS;
 
     typedef struct vertex
