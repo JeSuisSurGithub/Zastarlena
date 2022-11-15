@@ -52,9 +52,8 @@ namespace yz
         std::cout << std::endl;
     }
 
-    ctx::ctx(bool opengl_debug, bool wireframe)
+    ctx::ctx(bool opengl_debug, u32 seed)
     :
-    m_wireframe(wireframe),
     m_window(),
     m_control_ctx(m_window.m_window)
     {
@@ -101,8 +100,6 @@ namespace yz
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
 
-        u32 seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-        std::cout << "SEED: " << seed << std::endl;
         m_generation = std::make_unique<gen_context>(
             *m_stargroup,
             *m_planetgroup,
@@ -146,7 +143,7 @@ namespace yz
                 ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
             }
 
-            update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
+            if (!ctx_.m_control_ctx.m_freeze.toggled) update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
             rendergroups::update(*ctx_.m_stargroup, delta_time);
             rendergroups::update(*ctx_.m_planetgroup, delta_time);
 
@@ -156,10 +153,10 @@ namespace yz
                 (void*)(&ctx_.m_global_ubo + offsetof(ubo_shared, model)));
 
             prepare_render(*ctx_.m_framebuffer);
-                if (ctx_.m_wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
+                if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
                 rendergroups::render(*ctx_.m_stargroup);
                 rendergroups::render(*ctx_.m_planetgroup);
-                if (ctx_.m_wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
+                if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
             end_render(*ctx_.m_framebuffer);
             swap_buffers(ctx_.m_window);
         }

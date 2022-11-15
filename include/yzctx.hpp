@@ -21,7 +21,6 @@ namespace yz
         ctx(ctx &&) = delete;
         ctx &operator=(ctx &&) = delete;
 
-        bool m_wireframe;
         window m_window;
         controls m_control_ctx;
 
@@ -32,7 +31,7 @@ namespace yz
         ubo_shared m_global_ubo;
         GLuint m_ubo;
 
-        ctx(bool opengl_debug, bool wireframe);
+        ctx(bool opengl_debug, u32 seed);
         ~ctx();
     }ctx;
 

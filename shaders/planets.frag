@@ -49,7 +49,7 @@ vec3 calc_point_light(vec3 position, vec3 range, vec3 color, vec3 normal, vec3 f
     vec3 ambient = AMBIENT_STRENGTH * color * attenuation;
     vec3 diffusev = vec3(diffuse * color * attenuation);
     vec3 specularv = vec3(specular * color * attenuation);
-    return (ambient + diffusev + specularv) * 2;
+    return (ambient + diffusev + specularv) * 3.0;
 }
 
 void main()
