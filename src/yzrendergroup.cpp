@@ -36,7 +36,7 @@ namespace yz
     m_objects()
     {
         GLint values[MAX_TEXTURE_COUNT];
-        for (std::size_t index = 0; index < MAX_TEXTURE_COUNT; index++)
+        for (usz index = 0; index < MAX_TEXTURE_COUNT; index++)
             values[index] = index;
         update_int_array(*m_program, UNIFORM_LOCATIONS::TEXTURE, values, MAX_TEXTURE_COUNT);
     }

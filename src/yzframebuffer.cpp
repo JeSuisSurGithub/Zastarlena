@@ -23,7 +23,7 @@ namespace yz
 
         glCreateFramebuffers(1, &m_fbo);
         glCreateTextures(GL_TEXTURE_2D, 2, m_fbtexture);
-        for (std::size_t index = 0; index < 2; index++)
+        for (usz index = 0; index < 2; index++)
         {
             glTextureStorage2D(m_fbtexture[index], 1, GL_RGBA16F, m_width, m_height);
             glTextureParameteri(m_fbtexture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -45,7 +45,7 @@ namespace yz
 
         glCreateFramebuffers(2, m_blurfbo);
         glCreateTextures(GL_TEXTURE_2D, 2, m_blurfb_texture);
-        for (std::size_t index = 0; index < 2; index++)
+        for (usz index = 0; index < 2; index++)
         {
             glTextureStorage2D(m_blurfb_texture[index], 1, GL_RGBA16F, m_width, m_height);
             glTextureParameteri(m_blurfb_texture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -92,9 +92,9 @@ namespace yz
 
         bool horizontal = true;
         bool first_iteration = true;
-        std::size_t amount = 8;
+        usz amount = 8;
         bind(framebuffer_.m_blur);
-        for (std::size_t count = 0; count < amount; count++)
+        for (usz count = 0; count < amount; count++)
         {
             update_bool(framebuffer_.m_blur, UNIFORM_LOCATIONS::BLUR_HORIZONTAL, horizontal);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_.m_blurfbo[horizontal]);

@@ -72,12 +72,12 @@ namespace yz
         glProgramUniformMatrix4fv(program.m_id, location, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-    void update_uint_array(shader& program, GLint location, GLuint* uintv, std::size_t size)
+    void update_uint_array(shader& program, GLint location, GLuint* uintv, usz size)
     {
         glProgramUniform1uiv(program.m_id, location, size, uintv);
     }
 
-    void update_int_array(shader& program, GLint location, GLint* intv, std::size_t size)
+    void update_int_array(shader& program, GLint location, GLint* intv, usz size)
     {
         glProgramUniform1iv(program.m_id, location, size, intv);
     }
@@ -107,7 +107,7 @@ namespace yz
         std::ifstream in_file(filepath, std::ios::ate | std::ios::binary);
         if (!in_file.is_open())
             throw std::runtime_error("Failed to open file!");
-        std::size_t filesize = in_file.tellg();
+        usz filesize = in_file.tellg();
         std::vector<u8> buffer(filesize);
         in_file.seekg(0);
         in_file.read(reinterpret_cast<char*>(buffer.data()), filesize);

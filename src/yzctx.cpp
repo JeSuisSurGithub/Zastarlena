@@ -1,5 +1,5 @@
 #include <yzctx.hpp>
-#include <yzrand.hpp>
+#include <yzgen.hpp>
 
 #include <chrono>
 
@@ -74,7 +74,7 @@ namespace yz
         std::cout << "VENDOR: " << glGetString(GL_VENDOR) << std::endl;
         std::cout << "RENDERER: " << glGetString(GL_RENDERER) << std::endl;
         std::cout << "EXTENSIONS:" << std::endl;
-        for (std::size_t count = 0; count < ext_count; count++)
+        for (usz count = 0; count < ext_count; count++)
             std::cout << '\t' << glGetStringi(GL_EXTENSIONS, count) << std::endl;
 
         if (opengl_debug)
@@ -101,48 +101,15 @@ namespace yz
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
 
-        // Generate stars and planets
-        {
-            u32 rand_state = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-            std::cout << "SEED: " << rand_state << std::endl;
-            for (m_global_ubo.point_light_count = 0; m_global_ubo.point_light_count < 16; m_global_ubo.point_light_count++)
-            {
-                glm::vec3 position = {
-                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f),
-                    0.f,
-                    lehmer_randrange_flt(rand_state, -50000.f, 50000.f)};
-                float scale = (110000.f - (glm::abs(position.x) + glm::abs(position.z))) / 100.f;
-                glm::vec3 color = {
-                    lehmer_randrange_flt(rand_state, 0.1f, .9f * scale),
-                    lehmer_randrange_flt(rand_state, 0.1f, .6f * scale),
-                    lehmer_randrange_flt(rand_state, 0.1f, 1.f * scale)};
+        u32 seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+        std::cout << "SEED: " << seed << std::endl;
+        m_generation = std::make_unique<gen_context>(
+            *m_stargroup,
+            *m_planetgroup,
+            m_global_ubo.point_lights,
+            reinterpret_cast<usz&>(m_global_ubo.point_light_count),
+            seed, 16);
 
-                add_object(*m_stargroup->m_base, "models/uvs1.obj", "textures/unoise.jpg");
-                m_stargroup->m_base->m_objects[m_global_ubo.point_light_count].m_translation = position;
-                m_stargroup->m_base->m_objects[m_global_ubo.point_light_count].m_scale = glm::vec3(scale, scale, scale);
-
-                m_global_ubo.point_lights[m_global_ubo.point_light_count].position = position;
-                m_global_ubo.point_lights[m_global_ubo.point_light_count].range = rendergroups::light_range_constants(10.f * scale);
-                m_global_ubo.point_lights[m_global_ubo.point_light_count].color = color;
-
-                for (std::size_t planet_count = 0; planet_count < 5; planet_count++)
-                {
-                    glm::vec3 planet_position = {
-                        lehmer_randrange_flt(rand_state, position.x - scale * 20.f, position.x + scale * 20.f),
-                        0.f,
-                        lehmer_randrange_flt(rand_state, position.z - scale * 20.f, position.z + scale * 20.f)};
-                    float planet_scale = lehmer_randrange_flt(rand_state, scale * .1f, scale * 1.f);
-                    glm::vec3 planet_color = {
-                        lehmer_randrange_flt(rand_state, 0.f, .5f),
-                        lehmer_randrange_flt(rand_state, 0.f, .5f),
-                        lehmer_randrange_flt(rand_state, 0.f, .5f)};
-                    add_object(*m_planetgroup->m_base, "models/uvs1.obj", "textures/venus.jpg", "textures/cleanpole.png", planet_color);
-                    m_planetgroup->m_base->m_objects[m_global_ubo.point_light_count * 4 + planet_count].m_translation = planet_position;
-                    m_planetgroup->m_base->m_objects[m_global_ubo.point_light_count * 4 + planet_count].m_scale
-                        = glm::vec3(planet_scale, planet_scale, planet_scale);
-                }
-            }
-        }
         glCreateBuffers(1, &m_ubo);
         glNamedBufferStorage(m_ubo, sizeof(ubo_shared), (void*)&m_global_ubo, GL_DYNAMIC_STORAGE_BIT);
         glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_ubo, 0, sizeof(ubo_shared));
@@ -170,12 +137,13 @@ namespace yz
 
             window_size dimensions = get_size(ctx_.m_window);
             ctx_.m_global_ubo.projection =
-                glm::perspective(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1f, 80000.0f);
+                glm::perspective(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1f, 1000000.0f);
             ctx_.m_global_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
 
             if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
                 ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
 
+            update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
             rendergroups::update(*ctx_.m_stargroup, delta_time);
             rendergroups::update(*ctx_.m_planetgroup, delta_time);
 

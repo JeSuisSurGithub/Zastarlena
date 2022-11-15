@@ -6,9 +6,11 @@
 #include "rendergroups/planetgroup.hpp"
 #include "rendergroups/stargroup.hpp"
 #include "yzframebuffer.hpp"
+#include "yzgen.hpp"
 #include "yzwindow.hpp"
 
 #include <chrono>
+#include <memory>
 
 namespace yz
 {
@@ -26,7 +28,7 @@ namespace yz
         std::unique_ptr<framebuffer> m_framebuffer;
         std::unique_ptr<rendergroups::stargroup> m_stargroup;
         std::unique_ptr<rendergroups::planetgroup> m_planetgroup;
-
+        std::unique_ptr<gen_context> m_generation;
         ubo_shared m_global_ubo;
         GLuint m_ubo;
 

@@ -40,7 +40,7 @@ namespace yz
         if (!data)
             throw std::invalid_argument("Could not load height map\n");
 
-        for (std::size_t index = 0; index < m_vertices.size(); index++)
+        for (usz index = 0; index < m_vertices.size(); index++)
         {
             int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
             float pixel_value = data[pixel_index] / 255.0;

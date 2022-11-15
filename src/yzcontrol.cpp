@@ -7,7 +7,7 @@ namespace yz
     controls::controls(GLFWwindow* window)
     :
     m_show_mouse(false),
-    m_move_speed(2.f),
+    m_move_speed(0.5f),
     m_view_speed(.0002f),
     m_horizontal_angle(3.14f),
     m_vertical_angle(0.f),
@@ -66,7 +66,7 @@ namespace yz
         float speed_factor = 1.f;
         if (glfwGetKey(window, KEYMAP::SPEED) == GLFW_PRESS)
         {
-            speed_factor = 10.f;
+            speed_factor = 50.f;
         }
         if (glfwGetKey(window, KEYMAP::FORWARD) == GLFW_PRESS)
         {

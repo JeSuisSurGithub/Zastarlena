@@ -22,8 +22,8 @@ namespace yz
 
     void bind(shader& program);
     void update_matrix4(shader& program, GLint location, const glm::mat4& matrix);
-    void update_uint_array(shader& program, GLint location, GLuint* uintv, std::size_t size);
-    void update_int_array(shader& program, GLint location, GLint* intv, std::size_t size);
+    void update_uint_array(shader& program, GLint location, GLuint* uintv, usz size);
+    void update_int_array(shader& program, GLint location, GLint* intv, usz size);
     void update_uint(shader& program, GLint location, GLuint uint_);
     void update_int(shader& program, GLint location, GLint int_);
     void update_bool(shader& program, GLint location, bool bool_);

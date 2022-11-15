@@ -19,7 +19,7 @@ target("yuzhou")
         "src/yzrendergroup.cpp",
         "src/rendergroups/planetgroup.cpp",
         "src/rendergroups/stargroup.cpp",
-        "src/yzrand.cpp",
+        "src/yzgen.cpp",
         "src/yzshader.cpp",
         "src/yztexture.cpp",
         "src/yzwindow.cpp")

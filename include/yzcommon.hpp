@@ -24,6 +24,7 @@ namespace yz
     typedef std::int32_t i32;
     typedef std::uint8_t u8;
     typedef std::uint32_t u32;
+    typedef std::size_t usz;
 
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
