@@ -42,7 +42,7 @@ namespace yz
 
         for (usz index = 0; index < m_vertices.size(); index++)
         {
-            int pixel_index = std::min(((((m_vertices[index].uv.t) * width) * width) + ((1 - m_vertices[index].uv.s) * height)) * channels, ((float)width * (float)height * channels) - 1);
+            int pixel_index = std::min((((m_vertices[index].uv.t * width) * width) + (m_vertices[index].uv.s * height)) * channels, ((float)width * (float)height * channels) - 1);
             float pixel_value = data[pixel_index] / 255.0;
             m_vertices[index].xyz += glm::normalize(m_vertices[index].xyz) * height_filter(pixel_value);
         }
@@ -78,7 +78,7 @@ namespace yz
                 vertex.uv =
                 {
                     attrib.texcoords[2 * index.texcoord_index + 0],
-                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+                    1 - attrib.texcoords[2 * index.texcoord_index + 1]
                 };
 
                 vertex.normal =
@@ -139,9 +139,8 @@ namespace yz
 
     float default_height_filter(float pixel_value)
     {
-        float displacement =  (1.f - pixel_value) + 1.0;
-        return displacement / 2.f;
-        //return std::clamp(displacement, 1.0f, 1.2f);
+        float displacement =  (1.0 - pixel_value) + 1.0;
+        return displacement / 2.0;
     }
 
     void draw(model& model_)

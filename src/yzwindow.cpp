@@ -14,8 +14,8 @@ namespace yz
             glfwTerminate();
             throw std::runtime_error("Failed to create GLFW window\n");
         }
-
         glfwMakeContextCurrent(m_window);
+        glfwSwapInterval(0);
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
 

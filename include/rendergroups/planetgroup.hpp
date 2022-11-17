@@ -8,6 +8,14 @@ namespace yz
 {
     namespace rendergroups
     {
+        typedef struct ubo_planet
+        {
+            alignas(4) glm::vec3 material_ambient;
+            alignas(4) glm::vec3 material_diffuse;
+            alignas(4) glm::vec3 material_specular;
+            alignas(4) float shininess;
+        }ubo_planet;
+
         typedef struct planetgroup
         {
             planetgroup(const planetgroup &) = delete;
@@ -22,7 +30,7 @@ namespace yz
         }planetgroup;
 
         void update(planetgroup& context, float delta_time);
-        void render(planetgroup& context);
+        void render(planetgroup& context, glm::vec3 camera_xyz);
     }
 }
 

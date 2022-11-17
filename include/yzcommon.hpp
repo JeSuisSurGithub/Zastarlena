@@ -30,6 +30,7 @@ namespace yz
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
     constexpr u32 MAX_POINT_LIGHT{32};
+    constexpr float ZFAR{1000000.0};
 
     typedef enum UNIFORM_LOCATIONS
     {
@@ -41,8 +42,12 @@ namespace yz
         COMBINE_BLOOM = 36,
         UPSAMPLE_TEXTURE = 37,
         DOWNSAMPLE_TEXTURE = 39,
-        DOWNSAMPLE_RESOLUTION = 40,
-        TEXTURE_SCROLL_OFFSET = 41
+        SCREEN_RESOLUTION = 40,
+        TEXTURE_SCROLL_OFFSET = 41,
+        MATERIAL_AMBIENT = 42,
+        MATERIAL_DIFFUSE = 43,
+        MATERIAL_SPECULAR = 44,
+        SCREEN_TEARING_SCAN_POS = 45,
     }UNIFORM_LOCATIONS;
 
     typedef struct vertex

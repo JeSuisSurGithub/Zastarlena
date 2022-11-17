@@ -5,13 +5,29 @@ layout (location = 0) out vec4 out_rgba;
 
 layout (location = 35) uniform sampler2D main_image;
 layout (location = 36) uniform sampler2D bloom;
+layout (location = 40) uniform vec2 resolution;
+layout (location = 45) uniform uint screen_tearing_pos;
 
 const float GAMMA = 1.0;
-const float EXPOSURE = 0.25;
+const float EXPOSURE = 0.3;
+
+
+vec3 vhs_look(sampler2D image, vec2 uv, float chromatic_aberration_amount, float scan_shift, uint scan_height)
+{
+    float shift = 0;
+    if (gl_FragCoord.y > screen_tearing_pos % int(resolution.y) && gl_FragCoord.y < (screen_tearing_pos + scan_height) % int(resolution.y))
+    {
+        shift = scan_shift;
+    }
+    return vec3(
+        texture(image, uv - (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).r,
+        texture(image, uv - vec2(shift, 0)).g,
+        texture(image, uv + (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).b);
+}
 
 void main()
 {
-    vec3 hdr_color = texture(main_image, in_uv).rgb;
+    vec3 hdr_color = vhs_look(main_image, in_uv, 1.2, 0.008, 18);
     vec3 bloom_color = texture(bloom, in_uv).rgb;
     hdr_color = mix(hdr_color, bloom_color, 0.08);
 

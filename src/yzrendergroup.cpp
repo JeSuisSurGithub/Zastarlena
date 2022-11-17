@@ -8,9 +8,9 @@ namespace yz
     :
     m_model_index(model_index),
     m_texture_index(texture_index),
-    m_translation({0.f, 0.f, 0.f}),
-    m_euler_angles({0.f, 0.f, 0.f}),
-    m_scale({1.f, 1.f, 1.f})
+    m_translation({0.0, 0.0, 0.0}),
+    m_euler_angles({0.0, 0.0, 0.0}),
+    m_scale({1.0, 1.0, 1.0})
     {
     }
 
@@ -22,9 +22,9 @@ namespace yz
 
     glm::mat4 get_transform_mat(const object& object_)
     {
-        glm::mat4 translation_mat = glm::translate(glm::mat4(1.f), object_.m_translation);
+        glm::mat4 translation_mat = glm::translate(glm::mat4(1.0), object_.m_translation);
         glm::mat4 rotation_mat = glm::toMat4(glm::quat(object_.m_euler_angles));
-        glm::mat4 scale_mat = glm::scale(glm::mat4(1.f), object_.m_scale);
+        glm::mat4 scale_mat = glm::scale(glm::mat4(1.0), object_.m_scale);
         return translation_mat * rotation_mat * scale_mat;
     }
 

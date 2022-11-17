@@ -17,11 +17,13 @@ namespace rendergroups
         return;
     }
 
-    void render(planetgroup& context)
+    void render(planetgroup& context, glm::vec3 camera_xyz)
     {
         bind(*context.m_base->m_program);
         for (const object& cur_object : context.m_base->m_objects)
         {
+            if (glm::distance(camera_xyz, cur_object.m_translation) > ZFAR * 0.65)
+                continue;
             bind(*context.m_base->m_textures[cur_object.m_texture_index]);
             glm::mat4 transform = get_transform_mat(cur_object);
             glm::mat4 inverse_transform = glm::inverse(transform);

@@ -16,15 +16,17 @@ namespace rendergroups
 
     void update(stargroup& context, float delta_time)
     {
-        context.m_texture_offset_count += delta_time * 0.000015f;
+        context.m_texture_offset_count += delta_time * 0.000015;
         update_float(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_SCROLL_OFFSET, context.m_texture_offset_count);
     }
 
-    void render(stargroup& context)
+    void render(stargroup& context, glm::vec3 camera_xyz)
     {
         bind(*context.m_base->m_program);
         for (const object& cur_object : context.m_base->m_objects)
         {
+            if (glm::distance(camera_xyz, cur_object.m_translation) > ZFAR * 0.65)
+                continue;
             bind(*context.m_base->m_textures[cur_object.m_texture_index]);
             glm::mat4 transform = get_transform_mat(cur_object);
             glm::mat4 inverse_transform = glm::inverse(transform);
@@ -37,7 +39,7 @@ namespace rendergroups
 
     glm::vec3 light_range_constants(float lightrange)
     {
-        return glm::vec3(1.f, 4.5f / lightrange, 75.f / (lightrange * lightrange));
+        return glm::vec3(1.0, 4.5 / lightrange, 75.0 / (lightrange * lightrange));
     }
 }
 

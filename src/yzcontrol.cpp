@@ -1,20 +1,19 @@
-#include <dlfcn.h>
 #include <yzcontrol.hpp>
 
-float g_fov = 45.f;
+float g_fov = 45.0;
 
 namespace yz
 {
     controls::controls(GLFWwindow* window)
     :
-    m_move_speed(5.f),
-    m_view_speed(.001f),
-    m_horizontal_angle(3.14f),
-    m_vertical_angle(0.f),
+    m_move_speed(5.0),
+    m_view_speed(.001),
+    m_horizontal_angle(3.14),
+    m_vertical_angle(0.0),
     m_show_mouse({.toggled = false, .waited_time = 0, .wait_time = 200, .key =  KEYMAP::SHOW_MOUSE}),
     m_freeze({.toggled = false, .waited_time = 0, .wait_time = 200, .key =  KEYMAP::FREEZE}),
     m_wireframe({.toggled = false, .waited_time = 0, .wait_time = 200, .key =  KEYMAP::WIREFRAME}),
-    m_camera_xyz(glm::vec3(0.f, 0.f, 5.f))
+    m_camera_xyz(glm::vec3(0.0, 0.0, 5.0))
     {
         glfwSetScrollCallback(window, scroll_callback);
     }
@@ -23,7 +22,6 @@ namespace yz
 
     glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time)
     {
-
         int width{0};
         int height{0};
         glfwGetWindowSize(window, &width, &height);
@@ -61,21 +59,21 @@ namespace yz
             cos(context.m_vertical_angle) * cos(context.m_horizontal_angle)
         );
         glm::vec3 right = glm::vec3(
-            sin(context.m_horizontal_angle - 3.14f/2.0f),
+            sin(context.m_horizontal_angle - 3.14/2.0),
             0,
-            cos(context.m_horizontal_angle - 3.14f/2.0f)
+            cos(context.m_horizontal_angle - 3.14/2.0)
         );
         glm::vec3 up = glm::cross(right, forward);
 
         if (glfwGetKey(window, KEYMAP::INCREASE_SPEED) == GLFW_PRESS)
         {
-            context.m_move_speed += 1.f;
+            context.m_move_speed += 1.0;
         }
         if (glfwGetKey(window, KEYMAP::DECREASE_SPEED) == GLFW_PRESS)
         {
-            context.m_move_speed -= 1.f;
+            context.m_move_speed -= 1.0;
         }
-        context.m_move_speed = std::clamp(context.m_move_speed, 5.f, 100.f);
+        context.m_move_speed = std::clamp<float>(context.m_move_speed, 5.0, 100.0);
         if (glfwGetKey(window, KEYMAP::FORWARD) == GLFW_PRESS)
         {
             context.m_camera_xyz += forward * delta_time * context.m_move_speed;
@@ -102,8 +100,8 @@ namespace yz
 
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     {
-        g_fov -= yoffset * 1.5f;
-        g_fov = std::clamp(g_fov, 1.f, 300.f);
+        g_fov -= yoffset * 1.3;
+        g_fov = std::clamp<float>(g_fov, 1.0, 300.0);
     }
 
     bool update_toggle(toggle& toggle_, GLFWwindow* window, float delta_time)

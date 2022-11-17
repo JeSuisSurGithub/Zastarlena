@@ -2,6 +2,7 @@
 #include <yzgen.hpp>
 
 #include <chrono>
+#include <thread>
 
 namespace yz
 {
@@ -120,7 +121,7 @@ namespace yz
 
     void run(ctx& ctx_)
     {
-        ctx_.m_global_ubo.model = glm::mat4(1.0f);
+        ctx_.m_global_ubo.model = glm::mat4(1.0);
         std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
         while (!should_close(ctx_.m_window))
         {
@@ -134,13 +135,14 @@ namespace yz
 
             window_size dimensions = get_size(ctx_.m_window);
             ctx_.m_global_ubo.projection =
-                glm::perspective(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1f, 1000000.0f);
+                glm::perspective<float>(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1, ZFAR);
             ctx_.m_global_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
 
             if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
             {
                 glViewport(0, 0, dimensions.width, dimensions.height);
-                ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
+                u32 previous_count = ctx_.m_framebuffer->m_screen_tearing_count;
+                ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height, previous_count);
             }
 
             if (!ctx_.m_control_ctx.m_freeze.toggled) update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
@@ -154,11 +156,12 @@ namespace yz
 
             prepare_render(*ctx_.m_framebuffer);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
-                rendergroups::render(*ctx_.m_stargroup);
-                rendergroups::render(*ctx_.m_planetgroup);
+                rendergroups::render(*ctx_.m_stargroup, ctx_.m_global_ubo.camera_xyz);
+                rendergroups::render(*ctx_.m_planetgroup, ctx_.m_global_ubo.camera_xyz);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
-            end_render(*ctx_.m_framebuffer);
+            end_render(*ctx_.m_framebuffer, delta_time);
             swap_buffers(ctx_.m_window);
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
     }
 }

@@ -43,12 +43,12 @@ namespace yz
 
         model(
             const std::string& model_path,
-            glm::vec3 default_color = {1.f, 1.f, 1.f}
+            glm::vec3 default_color = {1.0, 1.0, 1.0}
         );
         model(
             const std::string& model_path,
             const std::string& height_map_path,
-            glm::vec3 default_color = {1.f, 1.f, 1.f},
+            glm::vec3 default_color = {1.0, 1.0, 1.0},
             std::function<float(float)> height_filter = default_height_filter
         );
         ~model();

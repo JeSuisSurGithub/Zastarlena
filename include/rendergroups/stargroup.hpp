@@ -23,7 +23,7 @@ namespace yz
         }stargroup;
 
         void update(stargroup& context, float delta_time);
-        void render(stargroup& context);
+        void render(stargroup& context, glm::vec3 camera_xyz);
 
         // According to https://wiki.ogre3d.org/Light+Attenuation+Shortcut
         // Linear = 4.5 / LightRange
