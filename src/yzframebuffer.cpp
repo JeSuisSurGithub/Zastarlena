@@ -86,7 +86,7 @@ namespace framebuffer
 
     void end_render(framebuffer& fb_, float delta_time)
     {
-        fb_.m_screen_tearing_count -= (1.0 / 16.0) * delta_time;
+        fb_.m_screen_tearing_count += delta_time / 4.0;
         glBindFramebuffer(GL_FRAMEBUFFER, fb_.m_bloom_fbo);
         {
             bind(fb_.m_downsampler);

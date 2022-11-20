@@ -38,9 +38,9 @@ namespace yz
             std::cout << "Generating star (" << (star_count + 1) << '/' << count << ")..." << std::endl;
             float star_scale = lehmer_randrange_flt(seed, 10.0, 1000.0);
             glm::vec3 star_position = {
-                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.1), (star_scale * SQUARE(count) * 0.1)),
+                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25)),
                 0.0,
-                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.1), (star_scale * SQUARE(count) * 0.1))};
+                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25))};
             glm::vec3 star_color = {
                 lehmer_randrange_flt(seed, RGB_BIAS.r,  RGB_BIAS.r * 5.0 * (star_scale * 0.1)),
                 lehmer_randrange_flt(seed, RGB_BIAS.g,  RGB_BIAS.g * 5.0 * (star_scale * 0.1)),
@@ -85,7 +85,7 @@ namespace yz
                 planets.m_planets.push_back(rendergroups::planet(
                     *planets.m_base,
                     "models/uvs1.obj",
-                    "textures/venus.png",
+                    "textures/patatouille.png",
                     "textures/planet_noise.png",
                     planet_position,
                     glm::vec3(0.0),

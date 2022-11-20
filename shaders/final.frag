@@ -29,10 +29,12 @@ vec3 vhs_look(sampler2D image, vec2 uv, float chromatic_aberration_amount, float
     {
         shift = scan_shift;
     }
-    return vec3(
+    return (vec3(
         texture(image, uv - (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).r,
         texture(image, uv - vec2(shift, 0)).g,
-        texture(image, uv + (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).b);
+        texture(image, uv + (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).b)
+    - (mod(gl_FragCoord.y, 2) * 0.25))
+    * max(abs(sin((gl_FragCoord.y + screen_tearing_pos) * 0.01)), 0.70);
 }
 
 void main()
