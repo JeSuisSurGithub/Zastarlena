@@ -4,7 +4,9 @@ float g_fov = 45.0;
 
 namespace yz
 {
-    controls::controls(GLFWwindow* window)
+namespace controls
+{
+    controls::controls(window::window& window_)
     :
     m_move_speed(5.0),
     m_view_speed(.001),
@@ -15,78 +17,73 @@ namespace yz
     m_wireframe({.toggled = false, .waited_time = 0, .wait_time = 200, .key =  KEYMAP::WIREFRAME}),
     m_camera_xyz(glm::vec3(0.0, 0.0, 5.0))
     {
-        glfwSetScrollCallback(window, scroll_callback);
+        set_scroll_callback(window_, scroll_callback);
     }
 
     controls::~controls() {}
 
-    glm::mat4 process_controls(controls& context, GLFWwindow* window, float delta_time)
+    glm::mat4 process_controls(controls& context, window::window& window_, float delta_time)
     {
-        int width{0};
-        int height{0};
-        glfwGetWindowSize(window, &width, &height);
-
-        bool changed = update_toggle(context.m_show_mouse, window, delta_time);
-        update_toggle(context.m_freeze, window, delta_time);
-        update_toggle(context.m_wireframe, window, delta_time);
+        window::window_size dimensions = window::get_size(window_);
+        bool changed = update_toggle(context.m_show_mouse, window_, delta_time);
+        update_toggle(context.m_freeze, window_, delta_time);
+        update_toggle(context.m_wireframe, window_, delta_time);
 
         if (changed)
         {
-            glfwSetInputMode(window, GLFW_CURSOR, (context.m_show_mouse.toggled) ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+            set_cursor_state(window_, context.m_show_mouse.toggled);
             if (!context.m_show_mouse.toggled)
             {
-                glfwSetCursorPos(window, static_cast<double>(width) / 2, static_cast<double>(height) / 2);
+                set_cursor_pos(window_, {static_cast<float>(dimensions.x) / 2, static_cast<float>(dimensions.y) / 2});
             }
         }
-
         // Movement
 
         if (!context.m_show_mouse.toggled)
         {
-            double xpos{0};
-            double ypos{0};
-            glfwGetCursorPos(window, &xpos, &ypos);
-            glfwSetCursorPos(window, static_cast<double>(width) / 2, static_cast<double>(height) / 2);
-            if (glfwGetWindowAttrib(window, GLFW_FOCUSED))
+            window::cursor_pos position = get_cursor_pos(window_);
+            set_cursor_pos(window_, {static_cast<float>(dimensions.x) / 2, static_cast<float>(dimensions.y) / 2});
+            if (is_focused(window_))
             {
-                context.m_horizontal_angle += context.m_view_speed * (g_fov * 0.01) * delta_time * (int(width / 2) - xpos);
-                context.m_vertical_angle   += context.m_view_speed * (g_fov * 0.01) * delta_time * (int(height / 2) - ypos);
+                context.m_horizontal_angle +=
+                    context.m_view_speed * (g_fov * 0.01) * delta_time * (int(dimensions.x / 2) - position.x);
+                context.m_vertical_angle   +=
+                    context.m_view_speed * (g_fov * 0.01) * delta_time * (int(dimensions.y / 2) - position.y);
             }
         }
         glm::vec3 forward(
             cos(context.m_vertical_angle) * sin(context.m_horizontal_angle),
             sin(context.m_vertical_angle),
-            cos(context.m_vertical_angle) * cos(context.m_horizontal_angle)
-        );
-        glm::vec3 right = glm::vec3(
-            sin(context.m_horizontal_angle - 3.14/2.0),
-            0,
-            cos(context.m_horizontal_angle - 3.14/2.0)
-        );
-        glm::vec3 up = glm::cross(right, forward);
+            cos(context.m_vertical_angle) * cos(context.m_horizontal_angle));
 
-        if (glfwGetKey(window, KEYMAP::INCREASE_SPEED) == GLFW_PRESS)
+        glm::vec3 right(
+            sin(context.m_horizontal_angle - glm::pi<float>() / 2.0),
+            0,
+            cos(context.m_horizontal_angle - glm::pi<float>() / 2.0));
+
+        glm::vec3 up = glm::cross(right, forward);
+        if (is_pressed(window_, KEYMAP::INCREASE_SPEED))
         {
             context.m_move_speed += 1.0;
         }
-        if (glfwGetKey(window, KEYMAP::DECREASE_SPEED) == GLFW_PRESS)
+        if (is_pressed(window_, KEYMAP::DECREASE_SPEED))
         {
             context.m_move_speed -= 1.0;
         }
         context.m_move_speed = std::clamp<float>(context.m_move_speed, 5.0, 100.0);
-        if (glfwGetKey(window, KEYMAP::FORWARD) == GLFW_PRESS)
+        if (is_pressed(window_, KEYMAP::FORWARD))
         {
             context.m_camera_xyz += forward * delta_time * context.m_move_speed;
         }
-        if (glfwGetKey(window, KEYMAP::BACKWARD) == GLFW_PRESS)
+        if (is_pressed(window_, KEYMAP::BACKWARD))
         {
             context.m_camera_xyz -= forward * delta_time * context.m_move_speed;
         }
-        if (glfwGetKey(window, KEYMAP::RIGHT) == GLFW_PRESS)
+        if (is_pressed(window_, KEYMAP::RIGHT))
         {
             context.m_camera_xyz += right * delta_time * context.m_move_speed;
         }
-        if (glfwGetKey(window, KEYMAP::LEFT) == GLFW_PRESS)
+        if (is_pressed(window_, KEYMAP::LEFT))
         {
             context.m_camera_xyz -= right * delta_time * context.m_move_speed;
         }
@@ -98,16 +95,10 @@ namespace yz
         return g_fov;
     }
 
-    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-    {
-        g_fov -= yoffset * 1.3;
-        g_fov = std::clamp<float>(g_fov, 1.0, 300.0);
-    }
-
-    bool update_toggle(toggle& toggle_, GLFWwindow* window, float delta_time)
+    bool update_toggle(toggle& toggle_, window::window& window_, float delta_time)
     {
         toggle_.waited_time += delta_time;
-        if ((toggle_.waited_time >= toggle_.wait_time) && glfwGetKey(window, toggle_.key) == GLFW_PRESS)
+        if ((toggle_.waited_time >= toggle_.wait_time) && is_pressed(window_, toggle_.key))
         {
             toggle_.waited_time = 0;
             toggle_.toggled = !toggle_.toggled;
@@ -115,4 +106,11 @@ namespace yz
         }
         return false;
     }
+
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        g_fov -= yoffset * 1.1;
+        g_fov = std::clamp<float>(g_fov, 1.0, 300.0);
+    }
+}
 }

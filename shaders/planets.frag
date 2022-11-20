@@ -18,9 +18,8 @@ struct point_light
     vec3 color;
 };
 
-layout (std140, binding = 0) uniform shared_ubo
+layout (std140, binding = 0) uniform ubo_shared
 {
-    mat4 model;
     mat4 view;
     mat4 projection;
     vec3 camera_xyz;
@@ -28,28 +27,36 @@ layout (std140, binding = 0) uniform shared_ubo
     uint current_point_light_count;
 };
 
+layout (std140, binding = 1) uniform ubo_material
+{
+    vec3 material_ambient;
+    vec3 material_diffuse;
+    vec3 material_specular;
+    float shininess;
+};
+
 layout(location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
 layout(location = 32) uniform uint texture_index;
 
-const float AMBIENT_STRENGTH = 0.1;
+const float BASE_AMBIENT = 0.1;
 
 vec3 calc_point_light(vec3 position, vec3 range, vec3 color, vec3 normal, vec3 frag_xyz, vec3 view_direction)
 {
     vec3 light_direction = normalize(position - frag_xyz);
 
-    float diffuse = max(dot(normal, light_direction), 0.0);
+    float base_diffuse = max(dot(normal, light_direction), 0.0);
 
     vec3 halfway_direction = normalize(light_direction + view_direction);
-    float specular = pow(max(dot(normal, halfway_direction), 0.0), 2);
+    float base_specular = pow(max(dot(normal, halfway_direction), 0.0), shininess);
 
     float distance = length(position - frag_xyz);
     float attenuation = 1.0 / (range.x + range.y * distance +
   		range.z * (distance * distance));
 
-    vec3 ambient = AMBIENT_STRENGTH * color * attenuation;
-    vec3 diffusev = vec3(diffuse * color * attenuation);
-    vec3 specularv = vec3(specular * color * attenuation);
-    return (ambient + diffusev + specularv) * 3.0;
+    vec3 ambient = BASE_AMBIENT * color * material_ambient * attenuation;
+    vec3 diffuse = base_diffuse * color * material_diffuse * attenuation;
+    vec3 specular = base_specular * color * material_specular * attenuation;
+    return (ambient + diffuse + specular);
 }
 
 void main()
@@ -59,7 +66,7 @@ void main()
 
     vec3 lighting = vec3(0.5);
 
-    for (int i = 0; i < current_point_light_count; i++)
+    for (uint i = 0; i < current_point_light_count; i++)
         lighting +=
             calc_point_light(point_lights[i].position, point_lights[i].range, point_lights[i].color, normal, in_world_xyz, view_direction);
 

@@ -4,6 +4,8 @@
 
 namespace yz
 {
+namespace rendergroups
+{
     object::object(u32 model_index, u32 texture_index)
     :
     m_model_index(model_index),
@@ -30,10 +32,7 @@ namespace yz
 
     rendergroup::rendergroup(const std::string& vert_path, const std::string& frag_path)
     :
-    m_program(std::make_unique<shader>(vert_path, frag_path, YZ_LOAD_SPIRV)),
-    m_textures(),
-    m_models(),
-    m_objects()
+    m_program(std::make_unique<shader::shader>(vert_path, frag_path, YZ_LOAD_SPIRV))
     {
         GLint values[MAX_TEXTURE_COUNT];
         for (usz index = 0; index < MAX_TEXTURE_COUNT; index++)
@@ -43,81 +42,67 @@ namespace yz
 
     rendergroup::~rendergroup() {}
 
-    void add_object(rendergroup& group, const std::string& model_path, const std::string& texture_path)
+    object create_object(rendergroup& group, const std::string& model_path, const std::string& texture_path)
     {
         u32 model_index = add_model(group, model_path);
         u32 texture_index = add_texture(group, texture_path);
-        add_object(group, model_index, texture_index);
+        return create_object(model_index, texture_index);
     }
 
-    void add_object(
+    object create_object(
         rendergroup& group,
         const std::string& model_path,
         const std::string& texture_path,
-        const std::string& height_map_path,
-        glm::vec3 default_color)
+        const std::string& height_map_path)
     {
-        u32 model_index = add_model(group, model_path, height_map_path, default_color);
+        u32 model_index = add_model(group, model_path, height_map_path);
         u32 texture_index = add_texture(group, texture_path);
-
-        add_object(group, model_index, texture_index);
+        return create_object(model_index, texture_index);
     }
 
-    void add_object(rendergroup& group, u32 model_index, u32 texture_index)
+    object create_object(u32 model_index, u32 texture_index)
     {
-        group.m_objects.push_back(object{model_index, texture_index});
+        return object(model_index, texture_index);
     }
 
     u32 add_model(rendergroup& group, const std::string& model_path)
     {
-        std::vector<std::unique_ptr<model>>::iterator iterator = std::find_if(
+        std::vector<std::unique_ptr<model::model>>::iterator iterator = std::find_if(
             group.m_models.begin(),
             group.m_models.end(),
-            [&](std::unique_ptr<model>& model) -> bool
+            [&](std::unique_ptr<model::model>& model) -> bool
         {
             return (model->m_model_path == model_path);
         });
 
-        u32 model_index{0};
         if (iterator == std::end(group.m_models))
         {
-            model_index = group.m_models.size();
-            group.m_models.push_back(std::make_unique<model>(model_path));
+            group.m_models.push_back(std::make_unique<model::model>(model_path));
+            return group.m_models.size() - 1;
         }
-        else
-        {
-            model_index = std::distance(std::begin(group.m_models), iterator);
-        }
-        return model_index;
+        return std::distance(std::begin(group.m_models), iterator);
     }
 
     u32 add_model(
         rendergroup& group,
         const std::string& model_path,
-        const std::string& height_map_path,
-        glm::vec3 default_color)
+        const std::string& height_map_path)
     {
-        std::vector<std::unique_ptr<model>>::iterator iterator = std::find_if(
+        std::vector<std::unique_ptr<model::model>>::iterator iterator = std::find_if(
             group.m_models.begin(),
             group.m_models.end(),
-            [&](std::unique_ptr<model>& model) -> bool
+            [&](std::unique_ptr<model::model>& model) -> bool
         {
             return (model->m_model_path == model_path) &&
-                (model->m_height_map_path == height_map_path) &&
-                (model->m_color == default_color);
+                (model->m_height_map_path == height_map_path);
         });
 
-        u32 model_index{0};
         if (iterator == std::end(group.m_models))
         {
-            model_index = group.m_models.size();
-            group.m_models.push_back(std::make_unique<model>(model_path, height_map_path, default_color));
+            group.m_models.push_back(std::make_unique<model::model>(model_path, height_map_path));
+            return group.m_models.size() - 1;
         }
-        else
-        {
-            model_index = std::distance(std::begin(group.m_models), iterator);
-        }
-        return model_index;
+        return std::distance(std::begin(group.m_models), iterator);
     }
 
     u32 add_texture(rendergroup& group, const std::string& texture_path)
@@ -125,24 +110,21 @@ namespace yz
         if (group.m_textures.size() == MAX_TEXTURE_COUNT)
             throw std::logic_error("Maximum texture count reached");
 
-        std::vector<std::unique_ptr<texture>>::iterator iterator = std::find_if(
+        std::vector<std::unique_ptr<texture::texture>>::iterator iterator = std::find_if(
             group.m_textures.begin(),
             group.m_textures.end(),
-            [&](std::unique_ptr<texture>& texture) -> bool
+            [&](std::unique_ptr<texture::texture>& texture) -> bool
         {
             return (texture->m_texture_path == texture_path);
         });
 
-        u32 texture_index{0};
         if (iterator == std::end(group.m_textures))
         {
-            texture_index = group.m_textures.size();
-            group.m_textures.push_back(std::make_unique<texture>(texture_path, texture_index));
+            u32 texture_index = group.m_textures.size();
+            group.m_textures.push_back(std::make_unique<texture::texture>(texture_path, texture_index));
+            return texture_index;
         }
-        else
-        {
-            texture_index = std::distance(std::begin(group.m_textures), iterator);
-        }
-        return texture_index;
+        return std::distance(std::begin(group.m_textures), iterator);
     }
+}
 }

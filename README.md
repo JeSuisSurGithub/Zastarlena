@@ -1,3 +1,1 @@
 # YuZhou
-+ Text Rendering
-* Instancing

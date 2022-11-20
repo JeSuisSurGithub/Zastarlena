@@ -21,43 +21,42 @@ namespace std
 
 namespace yz
 {
-    float default_height_filter(float pixel_value);
-
-    typedef struct model
+    namespace model
     {
-        model(const model &) = delete;
-        model &operator=(const model &) = delete;
-        model(model &&) = delete;
-        model &operator=(model &&) = delete;
+        float default_height_filter(float pixel_value);
 
-        const std::string m_model_path;
-        const std::string m_height_map_path;
-        const glm::vec3 m_color;
+        typedef struct model
+        {
+            model(const model &) = delete;
+            model &operator=(const model &) = delete;
+            model(model &&) = delete;
+            model &operator=(model &&) = delete;
 
-        std::vector<vertex> m_vertices;
-        std::vector<u32> m_indices;
+            const std::string m_model_path;
+            const std::string m_height_map_path;
 
-        GLuint m_vbo;
-        GLuint m_vao;
-        GLuint m_ebo;
+            std::vector<vertex> m_vertices;
+            std::vector<u32> m_indices;
 
-        model(
-            const std::string& model_path,
-            glm::vec3 default_color = {1.0, 1.0, 1.0}
-        );
-        model(
-            const std::string& model_path,
-            const std::string& height_map_path,
-            glm::vec3 default_color = {1.0, 1.0, 1.0},
-            std::function<float(float)> height_filter = default_height_filter
-        );
-        ~model();
+            GLuint m_vbo;
+            GLuint m_vao;
+            GLuint m_ebo;
 
-        void load_obj(glm::vec3 default_color);
-        void load_obj_to_gpu();
-    }model;
+            model(
+                const std::string& model_path
+            );
+            model(
+                const std::string& model_path,
+                const std::string& height_map_path,
+                std::function<float(float)> height_filter = default_height_filter);
+            ~model();
 
-    void draw(model& model_);
+            void load_obj();
+            void load_obj_to_gpu();
+        }model;
+
+        void draw(model& model_);
+    }
 }
 
 #endif /* YZMODEL_HPP */

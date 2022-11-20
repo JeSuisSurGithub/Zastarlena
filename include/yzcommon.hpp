@@ -44,9 +44,6 @@ namespace yz
         DOWNSAMPLE_TEXTURE = 39,
         SCREEN_RESOLUTION = 40,
         TEXTURE_SCROLL_OFFSET = 41,
-        MATERIAL_AMBIENT = 42,
-        MATERIAL_DIFFUSE = 43,
-        MATERIAL_SPECULAR = 44,
         SCREEN_TEARING_SCAN_POS = 45,
     }UNIFORM_LOCATIONS;
 
@@ -71,12 +68,11 @@ namespace yz
 
     typedef struct ubo_shared
     {
-        alignas(64) glm::mat4 model;
-        alignas(64) glm::mat4 view;
-        alignas(64) glm::mat4 projection;
+        alignas(0) glm::mat4 view;
+        alignas(0) glm::mat4 projection;
         alignas(16) glm::vec3 camera_xyz;
-        ubo_point_light point_lights[MAX_POINT_LIGHT];
-        alignas(4) GLint point_light_count;
+        alignas(0) ubo_point_light point_lights[MAX_POINT_LIGHT];
+        alignas(0) GLuint point_light_count;
     }ubo_shared;
 }
 

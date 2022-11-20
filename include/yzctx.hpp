@@ -7,6 +7,7 @@
 #include "rendergroups/stargroup.hpp"
 #include "yzframebuffer.hpp"
 #include "yzgen.hpp"
+#include "yzubo.hpp"
 #include "yzwindow.hpp"
 
 #include <chrono>
@@ -21,15 +22,13 @@ namespace yz
         ctx(ctx &&) = delete;
         ctx &operator=(ctx &&) = delete;
 
-        window m_window;
-        controls m_control_ctx;
+        window::window m_window;
+        controls::controls m_control_ctx;
 
-        std::unique_ptr<framebuffer> m_framebuffer;
+        std::unique_ptr<framebuffer::framebuffer> m_framebuffer;
         std::unique_ptr<rendergroups::stargroup> m_stargroup;
         std::unique_ptr<rendergroups::planetgroup> m_planetgroup;
-        std::unique_ptr<gen_context> m_generation;
-        ubo_shared m_global_ubo;
-        GLuint m_ubo;
+        std::unique_ptr<memory::ubo> m_ubo;
 
         ctx(bool opengl_debug, u32 seed);
         ~ctx();

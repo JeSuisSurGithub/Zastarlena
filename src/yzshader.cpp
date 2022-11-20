@@ -2,6 +2,8 @@
 
 namespace yz
 {
+namespace shader
+{
     shader::shader(const std::string& vertpath, const std::string& fragpath, bool load_spirv)
     {
         std::vector<u8> vertex_shader_buf = read_file(vertpath + (load_spirv ? ".spv" : ""));
@@ -21,8 +23,7 @@ namespace yz
 
         int status = 0;
         glGetShaderiv(vertex_sid, GL_COMPILE_STATUS, &status);
-        if (!status)
-            throw std::runtime_error("Invalid vertex shader\n");
+        if (!status) { throw std::runtime_error("Invalid vertex shader\n"); }
 
         std::vector<u8> fragment_shader_buf = read_file(fragpath + (load_spirv ? ".spv" : ""));
         GLuint fragment_sid = glCreateShader(GL_FRAGMENT_SHADER);
@@ -41,8 +42,7 @@ namespace yz
 
         status = 0;
         glGetShaderiv(fragment_sid, GL_COMPILE_STATUS, &status);
-        if (!status)
-            throw std::runtime_error("Invalid fragment shader\n");
+        if (!status) { throw std::runtime_error("Invalid fragment shader\n"); }
 
         m_id = glCreateProgram();
         glAttachShader(m_id, vertex_sid);
@@ -51,8 +51,8 @@ namespace yz
 
         status = 0;
         glGetProgramiv(m_id, GL_LINK_STATUS, &status);
-        if (!status)
-            throw std::runtime_error("Linking failed\n");
+        if (!status) { throw std::runtime_error("Linking failed\n"); }
+
         glDeleteShader(vertex_sid);
         glDeleteShader(fragment_sid);
     }
@@ -110,8 +110,7 @@ namespace yz
     std::vector<u8> read_file(const std::string& filepath)
     {
         std::ifstream in_file(filepath, std::ios::ate | std::ios::binary);
-        if (!in_file.is_open())
-            throw std::runtime_error("Failed to open file!");
+        if (!in_file.is_open()) { throw std::runtime_error("Failed to open file!"); }
         usz filesize = in_file.tellg();
         std::vector<u8> buffer(filesize);
         in_file.seekg(0);
@@ -119,4 +118,5 @@ namespace yz
         in_file.close();
         return buffer;
     }
+}
 }

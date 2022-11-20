@@ -11,11 +11,21 @@ layout (location = 45) uniform uint screen_tearing_pos;
 const float GAMMA = 1.0;
 const float EXPOSURE = 0.3;
 
-
 vec3 vhs_look(sampler2D image, vec2 uv, float chromatic_aberration_amount, float scan_shift, uint scan_height)
 {
     float shift = 0;
-    if (gl_FragCoord.y > screen_tearing_pos % int(resolution.y) && gl_FragCoord.y < (screen_tearing_pos + scan_height) % int(resolution.y))
+    if (gl_FragCoord.y > screen_tearing_pos % int(resolution.y) &&
+        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 1/3)) % int(resolution.y))
+    {
+        shift = scan_shift * 1.4;
+    }
+    else if (gl_FragCoord.y >= (screen_tearing_pos + (scan_height * 1/3)) % int(resolution.y) &&
+        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 2/3)) % int(resolution.y))
+    {
+        shift = scan_shift * 1.2;
+    }
+    else if (gl_FragCoord.y > (screen_tearing_pos + (scan_height * 2/3)) % int(resolution.y) &&
+        gl_FragCoord.y < (screen_tearing_pos + scan_height) % int(resolution.y))
     {
         shift = scan_shift;
     }
@@ -27,8 +37,8 @@ vec3 vhs_look(sampler2D image, vec2 uv, float chromatic_aberration_amount, float
 
 void main()
 {
-    vec3 hdr_color = vhs_look(main_image, in_uv, 1.2, 0.008, 18);
-    vec3 bloom_color = texture(bloom, in_uv).rgb;
+    vec3 hdr_color = vhs_look(main_image, in_uv, 1.2, 0.008, 8);
+    vec3 bloom_color = vhs_look(bloom, in_uv, 0, 0.008, 8);
     hdr_color = mix(hdr_color, bloom_color, 0.08);
 
     vec3 tone_mapped = vec3(1.0) - exp(-hdr_color * EXPOSURE);

@@ -2,43 +2,38 @@
 
 #include <algorithm>
 
-#include <ext/stb_image.h>
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <ext/tiny_obj_loader.h>
+#include <ext/stb_image.h>
 
 namespace yz
 {
+namespace model
+{
     model::model(
-        const std::string& model_path,
-        glm::vec3 default_color)
+        const std::string& model_path)
     :
     m_model_path(model_path),
-    m_height_map_path(""),
-    m_color(default_color)
+    m_height_map_path("")
     {
-        load_obj(default_color);
+        load_obj();
         load_obj_to_gpu();
     }
 
     model::model(
-            const std::string& model_path,
-            const std::string& height_map_path,
-            glm::vec3 default_color,
-            std::function<float(float)> height_filter
-        )
+        const std::string& model_path,
+        const std::string& height_map_path,
+        std::function<float(float)> height_filter)
     :
     m_model_path(model_path),
-    m_height_map_path(height_map_path),
-    m_color(default_color)
+    m_height_map_path(height_map_path)
     {
-        load_obj(default_color);
+        load_obj();
         int width;
         int height;
         int channels;
         stbi_uc* data = stbi_load(m_height_map_path.c_str(), &width, &height, &channels, 0);
-        if (!data)
-            throw std::invalid_argument("Could not load height map\n");
+        if (!data) { throw std::invalid_argument("Could not load height map\n"); }
 
         for (usz index = 0; index < m_vertices.size(); index++)
         {
@@ -50,7 +45,7 @@ namespace yz
         load_obj_to_gpu();
     }
 
-    void model::load_obj(glm::vec3 default_color)
+    void model::load_obj()
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -88,7 +83,7 @@ namespace yz
                     attrib.normals[3 * index.normal_index + 2]
                 };
 
-                vertex.rgb = default_color;
+                vertex.rgb = glm::vec3(1.0);
 
                 if (unique_vertices.count(vertex) == 0)
                 {
@@ -104,10 +99,12 @@ namespace yz
     void model::load_obj_to_gpu()
     {
         glCreateBuffers(1, &m_vbo);
-        glNamedBufferStorage(m_vbo, m_vertices.size() * sizeof(vertex), m_vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+        glNamedBufferStorage(m_vbo, m_vertices.size() * sizeof(vertex), m_vertices.data(),
+            GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
         glCreateBuffers(1, &m_ebo);
-        glNamedBufferStorage(m_ebo, m_indices.size() * sizeof(u32), m_indices.data(), GL_DYNAMIC_STORAGE_BIT);
+        glNamedBufferStorage(m_ebo, m_indices.size() * sizeof(u32), m_indices.data(),
+            GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
         glCreateVertexArrays(1, &m_vao);
 
@@ -146,7 +143,8 @@ namespace yz
     void draw(model& model_)
     {
         glBindVertexArray(model_.m_vao);
-        glDrawElements(GL_TRIANGLES, model_.m_indices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, model_.m_indices.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
+}
 }

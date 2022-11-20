@@ -1,5 +1,4 @@
 #include <yzctx.hpp>
-#include <yzgen.hpp>
 
 #include <chrono>
 #include <thread>
@@ -56,7 +55,7 @@ namespace yz
     ctx::ctx(bool opengl_debug, u32 seed)
     :
     m_window(),
-    m_control_ctx(m_window.m_window)
+    m_control_ctx(m_window)
     {
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
@@ -76,6 +75,7 @@ namespace yz
         std::cout << "EXTENSIONS:" << std::endl;
         for (usz count = 0; count < ext_count; count++)
             std::cout << '\t' << glGetStringi(GL_EXTENSIONS, count) << std::endl;
+        std::cout << "SEED: " << seed << std::endl;
 
         if (opengl_debug)
         {
@@ -96,32 +96,26 @@ namespace yz
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
-        window_size dimensions = get_size(m_window);
-        m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height);
+        window::window_size dimensions = get_size(m_window);
+        m_framebuffer = std::make_unique<framebuffer::framebuffer>(dimensions.x, dimensions.y);
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
 
-        m_generation = std::make_unique<gen_context>(
-            *m_stargroup,
-            *m_planetgroup,
-            m_global_ubo.point_lights,
-            reinterpret_cast<usz&>(m_global_ubo.point_light_count),
-            seed, 16);
-
-        glCreateBuffers(1, &m_ubo);
-        glNamedBufferStorage(m_ubo, sizeof(ubo_shared), (void*)&m_global_ubo, GL_DYNAMIC_STORAGE_BIT);
-        glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_ubo, 0, sizeof(ubo_shared));
-        glNamedBufferSubData(m_ubo, 0, sizeof(ubo_shared), (void*)&m_global_ubo);
+        generate(*m_stargroup, *m_planetgroup, seed, 32);
+        ubo_shared ubo_point_lights;
+        for (ubo_point_lights.point_light_count = 0; ubo_point_lights.point_light_count < m_stargroup->m_stars.size(); ubo_point_lights.point_light_count++)
+        {
+            ubo_point_lights.point_lights[ubo_point_lights.point_light_count]
+                = m_stargroup->m_stars[ubo_point_lights.point_light_count].point_light;
+        }
+        m_ubo = std::make_unique<memory::ubo>(0, (void*)&ubo_point_lights, sizeof(ubo_shared));
     }
 
-    ctx::~ctx()
-    {
-        glDeleteBuffers(1, &m_ubo);
-    }
+    ctx::~ctx() {}
 
     void run(ctx& ctx_)
     {
-        ctx_.m_global_ubo.model = glm::mat4(1.0);
+        ubo_shared cur_ubo;
         std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
         while (!should_close(ctx_.m_window))
         {
@@ -130,38 +124,45 @@ namespace yz
                 std::chrono::duration<float, std::chrono::milliseconds::period>(new_time - cur_time).count();
             cur_time = new_time;
 
+            std::chrono::system_clock::time_point logic_start = std::chrono::high_resolution_clock::now();
+
             update(ctx_.m_window);
-            ctx_.m_global_ubo.view = process_controls(ctx_.m_control_ctx, ctx_.m_window.m_window, delta_time);
+            cur_ubo.view = process_controls(ctx_.m_control_ctx, ctx_.m_window, delta_time);
 
-            window_size dimensions = get_size(ctx_.m_window);
-            ctx_.m_global_ubo.projection =
-                glm::perspective<float>(glm::radians(get_fov()), (float)dimensions.width / (float)dimensions.height, 0.1, ZFAR);
-            ctx_.m_global_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
+            window::window_size dimensions = get_size(ctx_.m_window);
+            cur_ubo.projection =
+                glm::perspective<float>(glm::radians(controls::get_fov()), (float)dimensions.x / (float)dimensions.y, 0.1, ZFAR);
+            cur_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
 
-            if (dimensions.width != ctx_.m_framebuffer->m_width || dimensions.height != ctx_.m_framebuffer->m_height)
+            if (dimensions.x != ctx_.m_framebuffer->m_width || dimensions.y != ctx_.m_framebuffer->m_height)
             {
-                glViewport(0, 0, dimensions.width, dimensions.height);
+                glViewport(0, 0, dimensions.x, dimensions.y);
                 u32 previous_count = ctx_.m_framebuffer->m_screen_tearing_count;
-                ctx_.m_framebuffer = std::make_unique<framebuffer>(dimensions.width, dimensions.height, previous_count);
+                ctx_.m_framebuffer = std::make_unique<framebuffer::framebuffer>(dimensions.x, dimensions.y, previous_count);
             }
 
-            if (!ctx_.m_control_ctx.m_freeze.toggled) update(*ctx_.m_generation, delta_time, *ctx_.m_stargroup, *ctx_.m_planetgroup);
             rendergroups::update(*ctx_.m_stargroup, delta_time);
-            rendergroups::update(*ctx_.m_planetgroup, delta_time);
+            if (!ctx_.m_control_ctx.m_freeze.toggled)
+                { rendergroups::update(*ctx_.m_planetgroup, delta_time, ctx_.m_stargroup->m_stars); }
+            memory::update(*ctx_.m_ubo, (void*)&cur_ubo, offsetof(ubo_shared, point_lights), 0);
+            std::chrono::system_clock::time_point logic_end = std::chrono::high_resolution_clock::now();
+            float logic_delta =
+                std::chrono::duration<float, std::chrono::milliseconds::period>(logic_end - logic_start).count();
 
-            glNamedBufferSubData(
-                ctx_.m_ubo,
-                offsetof(ubo_shared, model), offsetof(ubo_shared, point_lights),
-                (void*)(&ctx_.m_global_ubo + offsetof(ubo_shared, model)));
-
+            std::chrono::system_clock::time_point render_start = std::chrono::high_resolution_clock::now();
             prepare_render(*ctx_.m_framebuffer);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
-                rendergroups::render(*ctx_.m_stargroup, ctx_.m_global_ubo.camera_xyz);
-                rendergroups::render(*ctx_.m_planetgroup, ctx_.m_global_ubo.camera_xyz);
+                rendergroups::render(*ctx_.m_stargroup, cur_ubo.camera_xyz);
+                rendergroups::render(*ctx_.m_planetgroup, cur_ubo.camera_xyz);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
             end_render(*ctx_.m_framebuffer, delta_time);
+            std::chrono::system_clock::time_point render_end = std::chrono::high_resolution_clock::now();
+            float render_delta =
+                std::chrono::duration<float, std::chrono::milliseconds::period>(render_end - render_start).count();
+            std::cout << logic_delta << ' ' << render_delta << std::endl;
+
             swap_buffers(ctx_.m_window);
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
     }
 }

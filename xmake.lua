@@ -1,7 +1,7 @@
 set_xmakever("2.2.5")
 
 set_project("YuZhou")
-set_version("1.5.0")
+set_version("1.7.0")
 set_languages("cxx17")
 
 add_requires("opengl", "glfw", "glslang", {configs = {binaryonly = true}})
@@ -15,13 +15,14 @@ target("yuzhou")
         "src/yzcontrol.cpp",
         "src/yzctx.cpp",
         "src/yzframebuffer.cpp",
+        "src/yzgen.cpp",
         "src/yzmodel.cpp",
         "src/yzrendergroup.cpp",
         "src/rendergroups/planetgroup.cpp",
         "src/rendergroups/stargroup.cpp",
-        "src/yzgen.cpp",
         "src/yzshader.cpp",
         "src/yztexture.cpp",
+        "src/yzubo.cpp",
         "src/yzwindow.cpp")
 
     -- Libraries
@@ -44,20 +45,20 @@ target("yuzhou")
     if is_mode("release") then
         add_cxxflags("-O3", "-DNDEBUG")
     elseif is_mode("debug") then
-        add_cxxflags("-Og", "-ggdb")
+        add_cxxflags("-O0", "-ggdb")
     end
 
     -- Shaders
     add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
     add_files(
         "shaders/quad.vert",
-        "shaders/upsampler.frag",
         "shaders/downsampler.frag",
+        "shaders/upsampler.frag",
         "shaders/final.frag",
-        "shaders/stars.vert",
-        "shaders/stars.frag",
         "shaders/planets.vert",
-        "shaders/planets.frag")
+        "shaders/planets.frag",
+        "shaders/stars.vert",
+        "shaders/stars.frag")
 
     -- Assets
     after_build(function (target)

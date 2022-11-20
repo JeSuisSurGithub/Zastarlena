@@ -17,9 +17,8 @@ struct point_light
     vec3 color;
 };
 
-layout (std140, binding = 0) uniform shared_ubo
+layout (std140, binding = 0) uniform ubo_shared
 {
-    mat4 model;
     mat4 view;
     mat4 projection;
     vec3 camera_xyz;
@@ -33,10 +32,10 @@ layout (location = 34) uniform mat4 inverse_transform;
 void main()
 {
     vec4 world_xyz = transform * vec4(in_xyz, 1.0);
-    gl_Position = projection * view * model * world_xyz;
+    gl_Position = projection * view * world_xyz;
 
     out_rgb = in_rgb;
     out_uv = in_uv;
-    out_world_normal = normalize(mat3(model) * mat3(transpose(inverse_transform)) * in_normal);
-    out_world_xyz = vec3(model * world_xyz);
+    out_world_normal = normalize(mat3(transpose(inverse_transform)) * in_normal);
+    out_world_xyz = vec3(world_xyz);
 }

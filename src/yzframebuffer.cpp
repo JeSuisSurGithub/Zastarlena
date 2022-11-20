@@ -2,6 +2,8 @@
 
 namespace yz
 {
+namespace framebuffer
+{
     framebuffer::framebuffer(i32 width, i32 height, u32 previous_count)
     :
     m_final("shaders/quad.vert", "shaders/final.frag", YZ_LOAD_SPIRV),
@@ -12,7 +14,7 @@ namespace yz
     m_screen_tearing_count(previous_count)
     {
         glCreateBuffers(1, &m_vbo);
-        glNamedBufferStorage(m_vbo, sizeof(SCREEN_VERTICES), &SCREEN_VERTICES, GL_DYNAMIC_STORAGE_BIT);
+        glNamedBufferStorage(m_vbo, sizeof(SCREEN_VERTICES), &SCREEN_VERTICES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
         glCreateVertexArrays(1, &m_vao);
         glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, (4 * sizeof(float)));
@@ -24,15 +26,11 @@ namespace yz
         glVertexArrayAttribBinding(m_vao, 1, 0);
 
         glCreateFramebuffers(1, &m_fbo);
-        glCreateTextures(GL_TEXTURE_2D, 2, m_fbtexture);
         for (usz index = 0; index < 2; index++)
         {
-            glTextureStorage2D(m_fbtexture[index], 1, GL_RGBA16F, m_width, m_height);
-            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTextureParameteri(m_fbtexture[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glNamedFramebufferTexture(m_fbo, GL_COLOR_ATTACHMENT0 + index, m_fbtexture[index], 0);
+            m_colorbufs[index] =
+                std::make_unique<texture::texture>(m_width, m_height, index, GL_REPEAT, GL_CLAMP_TO_EDGE);
+            bind_to_framebuffer(*m_colorbufs[index], m_fbo, index);
         }
 
         glCreateRenderbuffers(1, &m_rbo);
@@ -48,20 +46,14 @@ namespace yz
 
         glm::vec2 mip_size{m_width, m_height};
         glCreateFramebuffers(1, &m_bloom_fbo);
-        glCreateTextures(GL_TEXTURE_2D, BLOOM_LEVEL, m_bloom_fbtextures);
         for (usz index = 0; index < BLOOM_LEVEL; index++)
         {
             mip_size /= 2.0;
-            m_bloom_levels[index] = mip_size;
-
-            glTextureStorage2D(m_bloom_fbtextures[index], 1, GL_RGBA16F, mip_size.x, mip_size.y);
-            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(m_bloom_fbtextures[index], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            m_bloom_colorbufs[index] =
+                std::make_unique<texture::texture>(mip_size.x, mip_size.y, index, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         }
         glNamedFramebufferDrawBuffers(m_bloom_fbo, 1, attachments);
-        glNamedFramebufferTexture(m_bloom_fbo, GL_COLOR_ATTACHMENT0, m_bloom_fbtextures[0], 0);
+        bind_to_framebuffer(*m_bloom_colorbufs[0], m_bloom_fbo, 0);
         if (glCheckNamedFramebufferStatus(m_bloom_fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Framebuffer incomplete\n");
 
@@ -76,10 +68,8 @@ namespace yz
         glDeleteVertexArrays(1, &m_vao);
         glDeleteBuffers(1, &m_vbo);
         glDeleteFramebuffers(1, &m_fbo);
-        glDeleteTextures(2, m_fbtexture);
         glDeleteRenderbuffers(1, &m_rbo);
         glDeleteFramebuffers(1, &m_bloom_fbo);
-        glDeleteTextures(5, m_bloom_fbtextures);
     }
 
     void prepare_render(framebuffer& fb_)
@@ -93,25 +83,24 @@ namespace yz
         glClearNamedFramebufferfv(fb_.m_fbo, GL_COLOR, 1, CLEAR_COLOR);
         glBindFramebuffer(GL_FRAMEBUFFER, fb_.m_fbo);
     }
+
     void end_render(framebuffer& fb_, float delta_time)
     {
-        fb_.m_screen_tearing_count -= (1.0/16.0) * delta_time;
+        fb_.m_screen_tearing_count -= (1.0 / 16.0) * delta_time;
         glBindFramebuffer(GL_FRAMEBUFFER, fb_.m_bloom_fbo);
         {
             bind(fb_.m_downsampler);
             update_vec2(fb_.m_downsampler,
                 UNIFORM_LOCATIONS::SCREEN_RESOLUTION, {fb_.m_width, fb_.m_height});
-            glBindTextureUnit(0, fb_.m_fbtexture[1]);
+            texture::bind(*fb_.m_colorbufs[1], 0);
             for (usz index = 0; index < BLOOM_LEVEL; index++)
             {
-                glViewport(0, 0, fb_.m_bloom_levels[index].x, fb_.m_bloom_levels[index].y);
-                glNamedFramebufferTexture(fb_.m_bloom_fbo, GL_COLOR_ATTACHMENT0, fb_.m_bloom_fbtextures[index], 0);
-                glBindVertexArray(fb_.m_vao);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                glBindVertexArray(0);
+                glViewport(0, 0, fb_.m_bloom_colorbufs[index]->m_width, fb_.m_bloom_colorbufs[index]->m_height);
+                bind_to_framebuffer(*fb_.m_bloom_colorbufs[index], fb_.m_bloom_fbo, 0);
+                draw_quad(fb_);
                 update_vec2(fb_.m_downsampler,
-                    UNIFORM_LOCATIONS::SCREEN_RESOLUTION, fb_.m_bloom_levels[index]);
-                glBindTextureUnit(0, fb_.m_bloom_fbtextures[index]);
+                    UNIFORM_LOCATIONS::SCREEN_RESOLUTION, {fb_.m_bloom_colorbufs[index]->m_width, fb_.m_bloom_colorbufs[index]->m_height});
+                texture::bind(*fb_.m_bloom_colorbufs[index], 0);
             }
         }
         {
@@ -119,12 +108,10 @@ namespace yz
             glBlendEquation(GL_FUNC_ADD);
             for (isz index = BLOOM_LEVEL - 1; index > 0; index--)
             {
-                glBindTextureUnit(0, fb_.m_bloom_fbtextures[index]);
-                glViewport(0, 0, fb_.m_bloom_levels[index - 1].x, fb_.m_bloom_levels[index - 1].y);
-                glNamedFramebufferTexture(fb_.m_bloom_fbo, GL_COLOR_ATTACHMENT0, fb_.m_bloom_fbtextures[index - 1], 0);
-                glBindVertexArray(fb_.m_vao);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                glBindVertexArray(0);
+                texture::bind(*fb_.m_bloom_colorbufs[index], 0);
+                glViewport(0, 0, fb_.m_bloom_colorbufs[index - 1]->m_width, fb_.m_bloom_colorbufs[index - 1]->m_height);
+                bind_to_framebuffer(*fb_.m_bloom_colorbufs[index - 1], fb_.m_bloom_fbo, 0);
+                draw_quad(fb_);
             }
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
@@ -135,10 +122,16 @@ namespace yz
         update_vec2(fb_.m_final,
             UNIFORM_LOCATIONS::SCREEN_RESOLUTION, {fb_.m_width, fb_.m_height});
         update_uint(fb_.m_final, UNIFORM_LOCATIONS::SCREEN_TEARING_SCAN_POS, fb_.m_screen_tearing_count);
-        glBindTextureUnit(0, fb_.m_fbtexture[0]);
-        glBindTextureUnit(1, fb_.m_bloom_fbtextures[0]);
+        texture::bind(*fb_.m_colorbufs[0], 0);
+        texture::bind(*fb_.m_bloom_colorbufs[0], 1);
+        draw_quad(fb_);
+    }
+
+    void draw_quad(framebuffer& fb_)
+    {
         glBindVertexArray(fb_.m_vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
+}
 }

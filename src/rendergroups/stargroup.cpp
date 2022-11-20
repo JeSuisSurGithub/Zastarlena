@@ -5,6 +5,30 @@ namespace yz
 
 namespace rendergroups
 {
+    star::star(
+        rendergroup& group,
+        const std::string& model_path,
+        const std::string& texture_path,
+        glm::vec3 position,
+        glm::vec3 rotation,
+        glm::vec3 scale,
+        glm::vec3 color,
+        glm::vec3 range,
+        usz planet_count_)
+    :
+    base(create_object(group, model_path, texture_path))
+    {
+        base.m_translation = position;
+        base.m_euler_angles = rotation;
+        base.m_scale = scale;
+        point_light.color = color;
+        point_light.position = position;
+        point_light.range = range;
+        planet_count = planet_count_;
+    }
+
+    star::~star() {}
+
     stargroup::stargroup()
     :
     m_texture_offset_count(0)
@@ -23,17 +47,17 @@ namespace rendergroups
     void render(stargroup& context, glm::vec3 camera_xyz)
     {
         bind(*context.m_base->m_program);
-        for (const object& cur_object : context.m_base->m_objects)
+        for (const star& cur_object : context.m_stars)
         {
-            if (glm::distance(camera_xyz, cur_object.m_translation) > ZFAR * 0.65)
+            if (glm::distance(camera_xyz, cur_object.base.m_translation) > ZFAR * 0.65)
                 continue;
-            bind(*context.m_base->m_textures[cur_object.m_texture_index]);
-            glm::mat4 transform = get_transform_mat(cur_object);
+            bind(*context.m_base->m_textures[cur_object.base.m_texture_index]);
+            glm::mat4 transform = get_transform_mat(cur_object.base);
             glm::mat4 inverse_transform = glm::inverse(transform);
-            update_uint(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_INDEX, cur_object.m_texture_index);
+            update_uint(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_INDEX, cur_object.base.m_texture_index);
             update_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::TRANSFORM, transform);
             update_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::INVERSE_TRANSFORM, inverse_transform);
-            draw(*context.m_base->m_models[cur_object.m_model_index]);
+            draw(*context.m_base->m_models[cur_object.base.m_model_index]);
         }
     }
 
