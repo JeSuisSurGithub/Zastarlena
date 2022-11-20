@@ -7,7 +7,7 @@ namespace memory
     ubo::ubo(u32 binding, void* data, usz size)
     {
         glCreateBuffers(1, &m_ubo);
-        glNamedBufferStorage(m_ubo, size, data, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+        glNamedBufferStorage(m_ubo, size, data, GL_DYNAMIC_STORAGE_BIT);
         glBindBufferRange(GL_UNIFORM_BUFFER, binding, m_ubo, 0, size);
     }
 
@@ -18,9 +18,7 @@ namespace memory
 
     void update(ubo& ubo_, void* data, usz size, usz offset)
     {
-        void* mapped_buf = glMapNamedBufferRange(ubo_.m_ubo, offset, size, GL_MAP_WRITE_BIT);
-        std::memcpy(mapped_buf, data, size);
-        glUnmapNamedBuffer(ubo_.m_ubo);
+        glNamedBufferSubData(ubo_.m_ubo, offset, size, (u8*)data + offset);
     }
 }
 }

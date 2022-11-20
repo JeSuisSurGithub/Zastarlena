@@ -5,6 +5,7 @@
 #include "yzcontrol.hpp"
 #include "rendergroups/planetgroup.hpp"
 #include "rendergroups/stargroup.hpp"
+#include "rendergroups/textgroup.hpp"
 #include "yzframebuffer.hpp"
 #include "yzgen.hpp"
 #include "yzubo.hpp"
@@ -28,6 +29,7 @@ namespace yz
         std::unique_ptr<framebuffer::framebuffer> m_framebuffer;
         std::unique_ptr<rendergroups::stargroup> m_stargroup;
         std::unique_ptr<rendergroups::planetgroup> m_planetgroup;
+        std::unique_ptr<rendergroups::textgroup> m_textgroup;
         std::unique_ptr<memory::ubo> m_ubo;
 
         ctx(bool opengl_debug, u32 seed);

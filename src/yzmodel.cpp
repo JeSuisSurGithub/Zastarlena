@@ -70,12 +70,6 @@ namespace model
                     attrib.vertices[3 * index.vertex_index + 2]
                 };
 
-                vertex.uv =
-                {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    1 - attrib.texcoords[2 * index.texcoord_index + 1]
-                };
-
                 vertex.normal =
                 {
                     attrib.normals[3 * index.normal_index + 0],
@@ -83,7 +77,11 @@ namespace model
                     attrib.normals[3 * index.normal_index + 2]
                 };
 
-                vertex.rgb = glm::vec3(1.0);
+                vertex.uv =
+                {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    1 - attrib.texcoords[2 * index.texcoord_index + 1]
+                };
 
                 if (unique_vertices.count(vertex) == 0)
                 {
@@ -114,17 +112,14 @@ namespace model
         glEnableVertexArrayAttrib(m_vao, 0);
         glEnableVertexArrayAttrib(m_vao, 1);
         glEnableVertexArrayAttrib(m_vao, 2);
-        glEnableVertexArrayAttrib(m_vao, 3);
 
         glVertexArrayAttribFormat(m_vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, xyz));
-        glVertexArrayAttribFormat(m_vao, 1, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, rgb));
+        glVertexArrayAttribFormat(m_vao, 1, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, normal));
         glVertexArrayAttribFormat(m_vao, 2, 2, GL_FLOAT, GL_FALSE, offsetof(vertex, uv));
-        glVertexArrayAttribFormat(m_vao, 3, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, normal));
 
         glVertexArrayAttribBinding(m_vao, 0, 0);
         glVertexArrayAttribBinding(m_vao, 1, 0);
         glVertexArrayAttribBinding(m_vao, 2, 0);
-        glVertexArrayAttribBinding(m_vao, 3, 0);
     }
 
     model::~model()

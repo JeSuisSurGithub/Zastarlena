@@ -9,7 +9,7 @@ namespace controls
     controls::controls(window::window& window_)
     :
     m_move_speed(5.0),
-    m_view_speed(.001),
+    m_view_speed(.0001),
     m_horizontal_angle(3.14),
     m_vertical_angle(0.0),
     m_show_mouse({.toggled = false, .waited_time = 0, .wait_time = 200, .key =  KEYMAP::SHOW_MOUSE}),

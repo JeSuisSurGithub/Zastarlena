@@ -10,18 +10,26 @@ namespace yz
 {
     namespace rendergroups
     {
-        typedef struct ubo_material
+        typedef struct material
         {
             alignas(16) glm::vec3 material_ambient;
             alignas(16) glm::vec3 material_diffuse;
             alignas(16) glm::vec3 material_specular;
             float shininess;
-        }ubo_material;
+        }material;
+
+        typedef struct ubo_planet
+        {
+            alignas(64) glm::mat4 transform;
+            alignas(64) glm::mat4 inverse_transform;
+            alignas(4) GLuint texture_index;
+            material material_;
+        }ubo_planet;
 
         typedef struct planet
         {
             object base;
-            ubo_material material;
+            material material_;
             float planet_distance_to_star;
             float planet_revolution_speed;
             float planet_orbital_speed;
@@ -35,7 +43,7 @@ namespace yz
                 glm::vec3 position,
                 glm::vec3 rotation,
                 glm::vec3 scale,
-                ubo_material material_,
+                material material__,
                 float planet_distance_to_star,
                 float planet_revolution_speed,
                 float planet_orbital_speed,

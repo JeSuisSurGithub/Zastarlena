@@ -25,13 +25,14 @@ namespace rendergroups
         point_light.position = position;
         point_light.range = range;
         planet_count = planet_count_;
+        texture_offset_count = 0.0;
     }
 
     star::~star() {}
 
     stargroup::stargroup()
     :
-    m_texture_offset_count(0)
+    m_ubo(UBO_BINDINGS::STAR, nullptr, sizeof(ubo_star))
     {
         m_base = std::make_unique<rendergroup>("shaders/stars.vert", "shaders/stars.frag");
     }
@@ -40,23 +41,26 @@ namespace rendergroups
 
     void update(stargroup& context, float delta_time)
     {
-        context.m_texture_offset_count += delta_time * 0.000015;
-        update_float(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_SCROLL_OFFSET, context.m_texture_offset_count);
+        for (star& cur_object : context.m_stars)
+        {
+            cur_object.texture_offset_count += delta_time * 0.000015;
+        }
     }
 
     void render(stargroup& context, glm::vec3 camera_xyz)
     {
         bind(*context.m_base->m_program);
+        ubo_star cur_ubo;
         for (const star& cur_object : context.m_stars)
         {
             if (glm::distance(camera_xyz, cur_object.base.m_translation) > ZFAR * 0.65)
                 continue;
             bind(*context.m_base->m_textures[cur_object.base.m_texture_index]);
-            glm::mat4 transform = get_transform_mat(cur_object.base);
-            glm::mat4 inverse_transform = glm::inverse(transform);
-            update_uint(*context.m_base->m_program, UNIFORM_LOCATIONS::TEXTURE_INDEX, cur_object.base.m_texture_index);
-            update_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::TRANSFORM, transform);
-            update_matrix4(*context.m_base->m_program, UNIFORM_LOCATIONS::INVERSE_TRANSFORM, inverse_transform);
+            cur_ubo.transform = get_transform_mat(cur_object.base);
+            cur_ubo.inverse_transform = glm::inverse(cur_ubo.transform);
+            cur_ubo.texture_index = cur_object.base.m_texture_index;
+            cur_ubo.texture_offset = cur_object.texture_offset_count;
+            memory::update(context.m_ubo, &cur_ubo, sizeof(ubo_star), 0);
             draw(*context.m_base->m_models[cur_object.base.m_model_index]);
         }
     }

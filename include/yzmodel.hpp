@@ -13,7 +13,7 @@ namespace std
         {
             return
                 ((hash<glm::vec3>()(vertex.xyz) ^
-                (hash<glm::vec3>()(vertex.rgb) << 1)) >> 1) ^
+                (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
                 (hash<glm::vec2>()(vertex.uv) << 1);
         }
     };

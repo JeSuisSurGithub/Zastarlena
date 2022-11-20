@@ -1,9 +1,8 @@
 #version 460 core
 
-layout(location = 1) in vec3 in_rgb;
-layout(location = 2) in vec2 in_uv;
-layout(location = 3) in vec3 in_world_normal;
-layout(location = 4) in vec3 in_world_xyz;
+layout(location = 1) in vec3 in_world_xyz;
+layout(location = 2) in vec3 in_world_normal;
+layout(location = 3) in vec2 in_uv;
 
 layout(location = 0) out vec4 out_rgba;
 layout(location = 1) out vec4 out_rgba_bright;
@@ -27,9 +26,15 @@ layout (std140, binding = 0) uniform ubo_shared
     uint current_point_light_count;
 };
 
+layout (std140, binding = 2) uniform ubo_star
+{
+    mat4 transform;
+    mat4 inverse_transform;
+    float texture_offset;
+    uint texture_index;
+};
+
 layout(location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
-layout(location = 32) uniform uint texture_index;
-layout(location = 41) uniform float texture_offset;
 
 const float BASE_AMBIENT = 0.1;
 

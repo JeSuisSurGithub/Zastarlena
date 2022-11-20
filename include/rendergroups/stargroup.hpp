@@ -2,17 +2,27 @@
 #define STARGROUP_HPP
 
 #include "yzrendergroup.hpp"
+#include "yzubo.hpp"
 #include <memory>
 
 namespace yz
 {
     namespace rendergroups
     {
+        typedef struct ubo_star
+        {
+            alignas(64) glm::mat4 transform;
+            alignas(64) glm::mat4 inverse_transform;
+            alignas(4) float texture_offset;
+            alignas(4) GLuint texture_index;
+        }ubo_star;
+
         typedef struct star
         {
             object base;
             ubo_point_light point_light;
             usz planet_count;
+            float texture_offset_count;
 
             star(
                 rendergroup& group,
@@ -35,9 +45,10 @@ namespace yz
             stargroup &operator=(stargroup &&) = delete;
 
             std::unique_ptr<rendergroup> m_base;
-            float m_texture_offset_count;
 
             std::vector<star> m_stars;
+
+            memory::ubo m_ubo;
 
             stargroup();
             ~stargroup();

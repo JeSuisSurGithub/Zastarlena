@@ -1,9 +1,8 @@
 #version 460 core
 
-layout(location = 1) in vec3 in_rgb;
-layout(location = 2) in vec2 in_uv;
-layout(location = 3) in vec3 in_world_normal;
-layout(location = 4) in vec3 in_world_xyz;
+layout(location = 1) in vec3 in_world_xyz;
+layout(location = 2) in vec3 in_world_normal;
+layout(location = 3) in vec2 in_uv;
 
 layout(location = 0) out vec4 out_rgba;
 layout(location = 1) out vec4 out_rgba_bright;
@@ -27,8 +26,11 @@ layout (std140, binding = 0) uniform ubo_shared
     uint current_point_light_count;
 };
 
-layout (std140, binding = 1) uniform ubo_material
+layout (std140, binding = 1) uniform ubo_planet
 {
+    mat4 transform;
+    mat4 inverse_transform;
+    uint texture_index;
     vec3 material_ambient;
     vec3 material_diffuse;
     vec3 material_specular;
@@ -36,7 +38,6 @@ layout (std140, binding = 1) uniform ubo_material
 };
 
 layout(location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
-layout(location = 32) uniform uint texture_index;
 
 const float BASE_AMBIENT = 0.1;
 
@@ -71,7 +72,7 @@ void main()
             calc_point_light(point_lights[i].position, point_lights[i].range, point_lights[i].color, normal, in_world_xyz, view_direction);
 
     vec3 texture_color = texture(textures[texture_index], in_uv).rgb;
-    vec4 hdr_color = vec4(lighting * texture_color * in_rgb, 1.0);
+    vec4 hdr_color = vec4(lighting * texture_color, 1.0);
     out_rgba = hdr_color;
 
     float brightness = dot(out_rgba.rgb, vec3(0.2126, 0.7152, 0.0722));

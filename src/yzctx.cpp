@@ -100,6 +100,7 @@ namespace yz
         m_framebuffer = std::make_unique<framebuffer::framebuffer>(dimensions.x, dimensions.y);
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
+        m_textgroup = std::make_unique<rendergroups::textgroup>("0123456789", 20);
 
         generate(*m_stargroup, *m_planetgroup, seed, 32);
         ubo_shared ubo_point_lights;
@@ -108,7 +109,7 @@ namespace yz
             ubo_point_lights.point_lights[ubo_point_lights.point_light_count]
                 = m_stargroup->m_stars[ubo_point_lights.point_light_count].point_light;
         }
-        m_ubo = std::make_unique<memory::ubo>(0, (void*)&ubo_point_lights, sizeof(ubo_shared));
+        m_ubo = std::make_unique<memory::ubo>(UBO_BINDINGS::SHARED, (void*)&ubo_point_lights, sizeof(ubo_shared));
     }
 
     ctx::~ctx() {}
@@ -124,7 +125,6 @@ namespace yz
                 std::chrono::duration<float, std::chrono::milliseconds::period>(new_time - cur_time).count();
             cur_time = new_time;
 
-            std::chrono::system_clock::time_point logic_start = std::chrono::high_resolution_clock::now();
 
             update(ctx_.m_window);
             cur_ubo.view = process_controls(ctx_.m_control_ctx, ctx_.m_window, delta_time);
@@ -144,25 +144,18 @@ namespace yz
             rendergroups::update(*ctx_.m_stargroup, delta_time);
             if (!ctx_.m_control_ctx.m_freeze.toggled)
                 { rendergroups::update(*ctx_.m_planetgroup, delta_time, ctx_.m_stargroup->m_stars); }
-            memory::update(*ctx_.m_ubo, (void*)&cur_ubo, offsetof(ubo_shared, point_lights), 0);
-            std::chrono::system_clock::time_point logic_end = std::chrono::high_resolution_clock::now();
-            float logic_delta =
-                std::chrono::duration<float, std::chrono::milliseconds::period>(logic_end - logic_start).count();
+            memory::update(*ctx_.m_ubo, &cur_ubo, offsetof(ubo_shared, point_lights), 0);
 
-            std::chrono::system_clock::time_point render_start = std::chrono::high_resolution_clock::now();
             prepare_render(*ctx_.m_framebuffer);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
                 rendergroups::render(*ctx_.m_stargroup, cur_ubo.camera_xyz);
                 rendergroups::render(*ctx_.m_planetgroup, cur_ubo.camera_xyz);
                 if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
+                rendergroups::render(*ctx_.m_textgroup, dimensions);
             end_render(*ctx_.m_framebuffer, delta_time);
-            std::chrono::system_clock::time_point render_end = std::chrono::high_resolution_clock::now();
-            float render_delta =
-                std::chrono::duration<float, std::chrono::milliseconds::period>(render_end - render_start).count();
-            std::cout << logic_delta << ' ' << render_delta << std::endl;
 
             swap_buffers(ctx_.m_window);
-            //std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
     }
 }

@@ -30,32 +30,36 @@ namespace yz
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
     constexpr u32 MAX_POINT_LIGHT{32};
-    constexpr float ZFAR{1000000.0};
+    constexpr float ZFAR{100000000.0};
+
+    typedef enum UBO_BINDINGS
+    {
+        SHARED = 0,
+        PLANET = 1,
+        STAR = 2,
+    }UBO_BINDINGS;
 
     typedef enum UNIFORM_LOCATIONS
     {
         TEXTURE = 0,
-        TEXTURE_INDEX = 32,
-        TRANSFORM = 33,
-        INVERSE_TRANSFORM = 34,
+        CHARACTER_TEXTURE = 33,
+        //CHARACTER_XY = 33,
         COMBINE_MAIN_SCENE = 35,
         COMBINE_BLOOM = 36,
         UPSAMPLE_TEXTURE = 37,
         DOWNSAMPLE_TEXTURE = 39,
         SCREEN_RESOLUTION = 40,
-        TEXTURE_SCROLL_OFFSET = 41,
         SCREEN_TEARING_SCAN_POS = 45,
     }UNIFORM_LOCATIONS;
 
     typedef struct vertex
     {
         glm::vec3 xyz;
-        glm::vec3 rgb;
-        glm::vec2 uv;
         glm::vec3 normal;
+        glm::vec2 uv;
         bool operator==(const struct vertex& cmp) const
         {
-            return (xyz == cmp.xyz && rgb == cmp.rgb && uv == cmp.uv && normal == cmp.normal);
+            return (xyz == cmp.xyz && normal == cmp.normal && uv == cmp.uv);
         }
     }vertex;
 

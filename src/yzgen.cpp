@@ -30,14 +30,13 @@ namespace yz
         u32 seed,
         usz count)
     {
-        const float SCALE = 10.0;
         const glm::vec3 RGB_BIAS = {10.0, 6.0, 8.0};
         usz planet_count = 0;
         std::cout << "Generating " << count << " solar systems..." << std::endl;
         for (usz star_count = 0; star_count < count; star_count++)
         {
             std::cout << "Generating star (" << (star_count + 1) << '/' << count << ")..." << std::endl;
-            float star_scale = lehmer_randrange_flt(seed, SCALE * 10.0, SCALE * 1000.0);
+            float star_scale = lehmer_randrange_flt(seed, 10.0, 1000.0);
             glm::vec3 star_position = {
                 lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.1), (star_scale * SQUARE(count) * 0.1)),
                 0.0,
@@ -77,11 +76,11 @@ namespace yz
                     star_position.x + glm::cos(cur_angle) * planet_distance_to_star,
                     0.0,
                     star_position.z + glm::sin(cur_angle) * planet_distance_to_star};
-                rendergroups::ubo_material material = {
+                rendergroups::material material_ = {
                     .material_ambient  = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
                     .material_diffuse  = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
                     .material_specular = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
-                    .shininess = lehmer_randrange_flt(seed, 2.0, 8.0)
+                    .shininess = lehmer_randrange_flt(seed, 1.0, 8.0)
                 };
                 planets.m_planets.push_back(rendergroups::planet(
                     *planets.m_base,
@@ -91,7 +90,7 @@ namespace yz
                     planet_position,
                     glm::vec3(0.0),
                     glm::vec3(planet_scale),
-                    material,
+                    material_,
                     planet_distance_to_star,
                     planet_revolution_speed,
                     planet_orbital_speed,
