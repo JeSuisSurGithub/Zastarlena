@@ -85,7 +85,7 @@ namespace yz
                 planets.m_planets.push_back(rendergroups::planet(
                     *planets.m_base,
                     "models/uvs1.obj",
-                    "textures/patatouille.png",
+                    "textures/venus.png",
                     "textures/planet_noise.png",
                     planet_position,
                     glm::vec3(0.0),
