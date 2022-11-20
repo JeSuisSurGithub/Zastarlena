@@ -1,7 +1,7 @@
 #version 460 core
 
 layout (location = 39) uniform sampler2D in_texture;
-layout (location = 40) uniform vec2 resolution;
+layout (location = 38) uniform vec2 resolution;
 
 layout (location = 0) in vec2 in_uv;
 layout (location = 0) out vec4 out_rgba;

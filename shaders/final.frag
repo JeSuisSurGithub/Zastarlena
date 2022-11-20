@@ -5,8 +5,8 @@ layout (location = 0) out vec4 out_rgba;
 
 layout (location = 35) uniform sampler2D main_image;
 layout (location = 36) uniform sampler2D bloom;
-layout (location = 40) uniform vec2 resolution;
-layout (location = 45) uniform uint screen_tearing_pos;
+layout (location = 38) uniform vec2 resolution;
+layout (location = 40) uniform uint screen_tearing_pos;
 
 const float GAMMA = 1.0;
 const float EXPOSURE = 0.3;

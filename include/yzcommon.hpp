@@ -43,13 +43,13 @@ namespace yz
     {
         TEXTURE = 0,
         CHARACTER_TEXTURE = 33,
-        //CHARACTER_XY = 33,
+        CHARACTER_TRANSLATION = 34,
         COMBINE_MAIN_SCENE = 35,
         COMBINE_BLOOM = 36,
         UPSAMPLE_TEXTURE = 37,
+        SCREEN_RESOLUTION = 38,
         DOWNSAMPLE_TEXTURE = 39,
-        SCREEN_RESOLUTION = 40,
-        SCREEN_TEARING_SCAN_POS = 45,
+        SCREEN_TEARING_SCAN_POS = 40,
     }UNIFORM_LOCATIONS;
 
     typedef struct vertex

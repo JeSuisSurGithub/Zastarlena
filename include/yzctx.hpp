@@ -24,7 +24,7 @@ namespace yz
         ctx &operator=(ctx &&) = delete;
 
         window::window m_window;
-        controls::controls m_control_ctx;
+        controls::controls m_controls;
 
         std::unique_ptr<framebuffer::framebuffer> m_framebuffer;
         std::unique_ptr<rendergroups::stargroup> m_stargroup;

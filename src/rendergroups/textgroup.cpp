@@ -4,23 +4,22 @@ namespace yz
 {
 namespace rendergroups
 {
-    textgroup::textgroup(const std::string& text, usz size)
+    textgroup::textgroup(usz size)
     :
     m_size(size),
-    m_text(text),
     m_characters("textures/font.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
     m_program("shaders/text.vert", "shaders/text.frag", YZ_LOAD_SPIRV)
     {
         update_int(m_program, UNIFORM_LOCATIONS::CHARACTER_TEXTURE, 0);
 
-        for (usz count = 0; count < m_text.size(); count++)
+        for (usz count = 0; count < 256; count++)
         {
-            glm::vec2 xy_upleft    = glm::vec2(count * m_size     , 0);
-            glm::vec2 xy_upright   = glm::vec2(count * m_size + m_size, 0);
-            glm::vec2 xy_downright = glm::vec2(count * m_size + m_size, m_size);
-            glm::vec2 xy_downleft  = glm::vec2(count * m_size     , m_size);
+            glm::vec2 xy_upleft    = glm::vec2(0 , 0);
+            glm::vec2 xy_upright   = glm::vec2(m_size, 0);
+            glm::vec2 xy_downright = glm::vec2(m_size, m_size);
+            glm::vec2 xy_downleft  = glm::vec2(0, m_size);
 
-            char c = m_text[count];
+            char c = count;
             float uv_x = (c % 16) / 16.0;
             float uv_y = (c / 16) / 16.0;
 
@@ -57,14 +56,23 @@ namespace rendergroups
         glDeleteBuffers(1, &m_vbo);
     }
 
-    void render(textgroup& group, glm::vec2 framebuffer_size)
+    void render(textgroup& group, glm::vec2 framebuffer_size, const std::vector<text>& texts)
     {
         bind(group.m_program);
         bind(group.m_characters);
         update_vec2(group.m_program,
             UNIFORM_LOCATIONS::SCREEN_RESOLUTION, framebuffer_size);
+
         glBindVertexArray(group.m_vao);
-        glDrawArrays(GL_TRIANGLES, 0, group.m_vertices.size());
+        for (const text& cur_text : texts)
+        {
+            for (usz count = 0; count < cur_text.text.size(); count++)
+            {
+                update_vec2(group.m_program, UNIFORM_LOCATIONS::CHARACTER_TRANSLATION,
+                glm::vec2(group.m_size * count + cur_text.xy.x, cur_text.xy.y));
+                glDrawArrays(GL_TRIANGLES, cur_text.text[count] * 6, 6);
+            }
+        }
         glBindVertexArray(0);
     }
 }

@@ -1,3 +1,6 @@
+#include "rendergroups/textgroup.hpp"
+#include "yzcontrol.hpp"
+#include <sstream>
 #include <yzctx.hpp>
 
 #include <chrono>
@@ -55,7 +58,7 @@ namespace yz
     ctx::ctx(bool opengl_debug, u32 seed)
     :
     m_window(),
-    m_control_ctx(m_window)
+    m_controls(m_window)
     {
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
@@ -100,7 +103,7 @@ namespace yz
         m_framebuffer = std::make_unique<framebuffer::framebuffer>(dimensions.x, dimensions.y);
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
-        m_textgroup = std::make_unique<rendergroups::textgroup>("0123456789", 20);
+        m_textgroup = std::make_unique<rendergroups::textgroup>(20);
 
         generate(*m_stargroup, *m_planetgroup, seed, 32);
         ubo_shared ubo_point_lights;
@@ -117,6 +120,7 @@ namespace yz
     void run(ctx& ctx_)
     {
         ubo_shared cur_ubo;
+        u32 frame_count = 0;
         std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
         while (!should_close(ctx_.m_window))
         {
@@ -125,14 +129,13 @@ namespace yz
                 std::chrono::duration<float, std::chrono::milliseconds::period>(new_time - cur_time).count();
             cur_time = new_time;
 
-
             update(ctx_.m_window);
-            cur_ubo.view = process_controls(ctx_.m_control_ctx, ctx_.m_window, delta_time);
+            cur_ubo.view = process_controls(ctx_.m_controls, ctx_.m_window, delta_time);
 
             window::window_size dimensions = get_size(ctx_.m_window);
             cur_ubo.projection =
                 glm::perspective<float>(glm::radians(controls::get_fov()), (float)dimensions.x / (float)dimensions.y, 0.1, ZFAR);
-            cur_ubo.camera_xyz = ctx_.m_control_ctx.m_camera_xyz;
+            cur_ubo.camera_xyz = ctx_.m_controls.m_camera_xyz;
 
             if (dimensions.x != ctx_.m_framebuffer->m_width || dimensions.y != ctx_.m_framebuffer->m_height)
             {
@@ -142,19 +145,41 @@ namespace yz
             }
 
             rendergroups::update(*ctx_.m_stargroup, delta_time);
-            if (!ctx_.m_control_ctx.m_freeze.toggled)
+            if (!ctx_.m_controls.m_freeze.toggled)
                 { rendergroups::update(*ctx_.m_planetgroup, delta_time, ctx_.m_stargroup->m_stars); }
             memory::update(*ctx_.m_ubo, &cur_ubo, offsetof(ubo_shared, point_lights), 0);
+            std::vector<rendergroups::text> texts(4);
+            std::stringstream tmp;
+
+            tmp <<  "FPS: " << 1 / (delta_time * 0.001);
+            texts[0] = {.text = tmp.str(), .xy = glm::vec2(0.0, 0.0)};
+            tmp.str(std::string());
+
+            tmp
+                << "X: " << glm::round(ctx_.m_controls.m_camera_xyz.x)
+                << " Y: " << glm::round(ctx_.m_controls.m_camera_xyz.y)
+                << " Z: " << glm::round(ctx_.m_controls.m_camera_xyz.z);
+            texts[1] = {.text = tmp.str(), .xy = glm::vec2(0.0, 20.0)};
+            tmp.str(std::string());
+
+            tmp << "FOV: " << controls::get_fov() << " & SPEED: " << ctx_.m_controls.m_move_speed;
+            texts[2] = {.text = tmp.str(), .xy = glm::vec2(0.0, 40.0)};
+            tmp.str(std::string());
+            tmp
+                << "RESOLUTION: " << dimensions.x << 'x' << dimensions.y
+                << " FRAMES: " << frame_count;
+            texts[3] = {.text = tmp.str(), .xy = glm::vec2(0.0, 60.0)};
 
             prepare_render(*ctx_.m_framebuffer);
-                if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
+                if (ctx_.m_controls.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
                 rendergroups::render(*ctx_.m_stargroup, cur_ubo.camera_xyz);
                 rendergroups::render(*ctx_.m_planetgroup, cur_ubo.camera_xyz);
-                if (ctx_.m_control_ctx.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
-                rendergroups::render(*ctx_.m_textgroup, dimensions);
+                if (ctx_.m_controls.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); };
+                rendergroups::render(*ctx_.m_textgroup, dimensions, texts);
             end_render(*ctx_.m_framebuffer, delta_time);
 
             swap_buffers(ctx_.m_window);
+            frame_count++;
             std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
     }

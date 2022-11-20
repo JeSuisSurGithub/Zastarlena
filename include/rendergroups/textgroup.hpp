@@ -9,6 +9,12 @@ namespace yz
 {
     namespace rendergroups
     {
+        typedef struct text
+        {
+            std::string text;
+            glm::vec2 xy;
+        }text;
+
         typedef struct textgroup
         {
             textgroup(const textgroup &) = delete;
@@ -17,7 +23,6 @@ namespace yz
             textgroup &operator=(textgroup &&) = delete;
 
             const usz m_size;
-            std::string m_text;
             std::vector<glm::vec4> m_vertices;
 
             GLuint m_vao;
@@ -26,11 +31,11 @@ namespace yz
             texture::texture m_characters;
             shader::shader m_program;
 
-            textgroup(const std::string& text, usz size);
+            textgroup(usz size);
             ~textgroup();
         }textgroup;
 
-        void render(textgroup& group, glm::vec2 framebuffer_size);
+        void render(textgroup& group, glm::vec2 framebuffer_size, const std::vector<text>& texts);
     }
 }
 
