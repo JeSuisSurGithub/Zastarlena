@@ -39,6 +39,7 @@ namespace texture
         glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, S_WRAP);
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, T_WRAP);
+        glTextureParameteri(m_id, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
         glTextureStorage2D(m_id, 1, GL_RGBA8, m_width, m_height);
         glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(m_id);

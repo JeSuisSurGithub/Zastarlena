@@ -112,7 +112,7 @@ namespace yz
             ubo_point_lights.point_lights[ubo_point_lights.point_light_count]
                 = m_stargroup->m_stars[ubo_point_lights.point_light_count].point_light;
         }
-        m_ubo = std::make_unique<memory::ubo>(UBO_BINDINGS::SHARED, (void*)&ubo_point_lights, sizeof(ubo_shared));
+        m_ubo = std::make_unique<memory::ubo>(UBO_BINDINGS::SHARED, (void*)&ubo_point_lights, ubo_shared_size);
     }
 
     ctx::~ctx() {}

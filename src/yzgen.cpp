@@ -6,13 +6,13 @@ namespace yz
 {
     i32 lehmer_randrange(u32& state, i32 min, i32 max)
     {
-        state = (std::uint64_t)state * 279470273u % 0xfffffffb;
+        state = (std::uint64_t)state * 279470273U % 0xFFFFFFFB;
         return (state % (max - min)) + min;
     }
 
     float lehmer_randrange_flt(u32& state, float min, float max)
     {
-        state = (std::uint64_t)state * 279470273u % 0xfffffffb;
+        state = (std::uint64_t)state * 279470273U % 0xFFFFFFFB;
         return (float)state / (float)(UINT32_MAX / (max - min)) + min;
     }
 
@@ -76,12 +76,12 @@ namespace yz
                     star_position.x + glm::cos(cur_angle) * planet_distance_to_star,
                     0.0,
                     star_position.z + glm::sin(cur_angle) * planet_distance_to_star};
+                glm::vec3 planet_color = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0));
                 rendergroups::material material_ = {
-                    .material_ambient  = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
-                    .material_diffuse  = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
-                    .material_specular = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0)),
-                    .shininess = lehmer_randrange_flt(seed, 1.0, 8.0)
-                };
+                    .material_ambient  = planet_color * lehmer_randrange_flt(seed, 0.5, 1.5),
+                    .material_diffuse  = planet_color * lehmer_randrange_flt(seed, 0.5, 1.5),
+                    .material_specular = planet_color * lehmer_randrange_flt(seed, 0.5, 1.5),
+                    .shininess = lehmer_randrange_flt(seed, 1.0, 8.0)};
                 planets.m_planets.push_back(rendergroups::planet(
                     *planets.m_base,
                     "models/uvs1.obj",

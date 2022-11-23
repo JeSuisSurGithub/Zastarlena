@@ -72,12 +72,14 @@ namespace yz
 
     typedef struct ubo_shared
     {
-        alignas(0) glm::mat4 view;
-        alignas(0) glm::mat4 projection;
+        alignas(64) glm::mat4 view;
+        alignas(64) glm::mat4 projection;
         alignas(16) glm::vec3 camera_xyz;
-        alignas(0) ubo_point_light point_lights[MAX_POINT_LIGHT];
-        alignas(0) GLuint point_light_count;
+        ubo_point_light point_lights[MAX_POINT_LIGHT];
+        alignas(4) GLuint point_light_count;
     }ubo_shared;
+
+    constexpr usz ubo_shared_size = 1684;
 }
 
 #endif /* YZCOMMON_HPP */

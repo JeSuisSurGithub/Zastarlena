@@ -5,7 +5,6 @@ layout (location = 0) out vec4 out_rgba;
 
 layout (location = 35) uniform sampler2D main_image;
 layout (location = 36) uniform sampler2D bloom;
-layout (location = 38) uniform vec2 resolution;
 layout (location = 40) uniform uint screen_tearing_pos;
 
 const float GAMMA = 1.0;
@@ -13,26 +12,27 @@ const float EXPOSURE = 0.3;
 
 vec3 vhs_look(sampler2D image, vec2 uv, float chromatic_aberration_amount, float scan_shift, uint scan_height)
 {
+    const ivec2 resolution = textureSize(image, 0);
     float shift = 0;
-    if (gl_FragCoord.y > screen_tearing_pos % int(resolution.y) &&
-        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 1/3)) % int(resolution.y))
+    if (gl_FragCoord.y > screen_tearing_pos % resolution.y &&
+        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 1/3)) % resolution.y)
     {
         shift = scan_shift * 1.4;
     }
-    else if (gl_FragCoord.y >= (screen_tearing_pos + (scan_height * 1/3)) % int(resolution.y) &&
-        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 2/3)) % int(resolution.y))
+    else if (gl_FragCoord.y >= (screen_tearing_pos + (scan_height * 1/3)) % resolution.y &&
+        gl_FragCoord.y < (screen_tearing_pos + (scan_height * 2/3)) % resolution.y)
     {
         shift = scan_shift * 1.2;
     }
-    else if (gl_FragCoord.y > (screen_tearing_pos + (scan_height * 2/3)) % int(resolution.y) &&
-        gl_FragCoord.y < (screen_tearing_pos + scan_height) % int(resolution.y))
+    else if (gl_FragCoord.y > (screen_tearing_pos + (scan_height * 2/3)) % resolution.y &&
+        gl_FragCoord.y < (screen_tearing_pos + scan_height) % resolution.y)
     {
         shift = scan_shift;
     }
     return (vec3(
-        texture(image, uv - (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).r,
+        texture(image, uv - (vec2(chromatic_aberration_amount) / textureSize(image, 0)) - vec2(shift, 0)).r,
         texture(image, uv - vec2(shift, 0)).g,
-        texture(image, uv + (vec2(chromatic_aberration_amount) / resolution) - vec2(shift, 0)).b)
+        texture(image, uv + (vec2(chromatic_aberration_amount) / textureSize(image, 0)) - vec2(shift, 0)).b)
     - (mod(gl_FragCoord.y, 2) * 0.25))
     * max(abs(sin((gl_FragCoord.y + screen_tearing_pos) * 0.01)), 0.70);
 }

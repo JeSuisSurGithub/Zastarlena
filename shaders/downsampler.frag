@@ -1,14 +1,13 @@
 #version 460 core
 
 layout (location = 39) uniform sampler2D in_texture;
-layout (location = 38) uniform vec2 resolution;
 
 layout (location = 0) in vec2 in_uv;
 layout (location = 0) out vec4 out_rgba;
 
 void main()
 {
-    vec2 texel_size = 1.0 / resolution;
+    vec2 texel_size = 1.0 / textureSize(in_texture, 0);
     float x = texel_size.x;
     float y = texel_size.y;
 
