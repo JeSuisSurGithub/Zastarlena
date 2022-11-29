@@ -16,6 +16,7 @@
 
 namespace yz
 {
+    constexpr usz TEXT_SIZE = 20;
     typedef struct ctx
     {
         ctx(const ctx &) = delete;

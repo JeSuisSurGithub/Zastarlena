@@ -103,7 +103,7 @@ namespace yz
         m_framebuffer = std::make_unique<framebuffer::framebuffer>(dimensions.x, dimensions.y);
         m_stargroup = std::make_unique<rendergroups::stargroup>();
         m_planetgroup = std::make_unique<rendergroups::planetgroup>();
-        m_textgroup = std::make_unique<rendergroups::textgroup>(20);
+        m_textgroup = std::make_unique<rendergroups::textgroup>(TEXT_SIZE);
 
         generate(*m_stargroup, *m_planetgroup, seed, 32);
         ubo_shared ubo_point_lights;
@@ -121,6 +121,9 @@ namespace yz
     {
         ubo_shared cur_ubo;
         u32 frame_count = 0;
+        std::string scroll_text = "/!\\ !!! TEST SCROLLING LONG MESSAGE !!! /!\\";
+        glm::vec2 scroll_text_xy = {0, TEXT_SIZE * 4};
+
         std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
         while (!should_close(ctx_.m_window))
         {
@@ -148,27 +151,32 @@ namespace yz
             if (!ctx_.m_controls.m_freeze.toggled)
                 { rendergroups::update(*ctx_.m_planetgroup, delta_time, ctx_.m_stargroup->m_stars); }
             memory::update(*ctx_.m_ubo, &cur_ubo, offsetof(ubo_shared, point_lights), 0);
-            std::vector<rendergroups::text> texts(4);
+            std::vector<rendergroups::text> texts(5);
             std::stringstream tmp;
 
             tmp <<  "FPS: " << 1 / (delta_time * 0.001);
-            texts[0] = {.text = tmp.str(), .xy = glm::vec2(0.0, 0.0)};
+            texts[0] = {.text = tmp.str(), .xy = glm::vec2(0.0, TEXT_SIZE * 0)};
             tmp.str(std::string());
 
             tmp
                 << "X: " << glm::round(ctx_.m_controls.m_camera_xyz.x)
                 << " Y: " << glm::round(ctx_.m_controls.m_camera_xyz.y)
                 << " Z: " << glm::round(ctx_.m_controls.m_camera_xyz.z);
-            texts[1] = {.text = tmp.str(), .xy = glm::vec2(0.0, 20.0)};
+            texts[1] = {.text = tmp.str(), .xy = glm::vec2(0.0, TEXT_SIZE * 1)};
             tmp.str(std::string());
 
             tmp << "FOV: " << controls::get_fov() << " & SPEED: " << ctx_.m_controls.m_move_speed;
-            texts[2] = {.text = tmp.str(), .xy = glm::vec2(0.0, 40.0)};
+            texts[2] = {.text = tmp.str(), .xy = glm::vec2(0.0, TEXT_SIZE * 2)};
             tmp.str(std::string());
             tmp
                 << "RESOLUTION: " << dimensions.x << 'x' << dimensions.y
                 << " FRAMES: " << frame_count;
-            texts[3] = {.text = tmp.str(), .xy = glm::vec2(0.0, 60.0)};
+            texts[3] = {.text = tmp.str(), .xy = glm::vec2(0.0, TEXT_SIZE * 3)};
+
+            texts[4] = {.text = scroll_text, .xy = scroll_text_xy};
+            scroll_text_xy.x = scroll_text_xy.x - delta_time * 0.2;
+            if (scroll_text_xy.x < -((isz)TEXT_SIZE * (isz)scroll_text.size()))
+                scroll_text_xy.x = dimensions.x;
 
             prepare_render(*ctx_.m_framebuffer);
                 if (ctx_.m_controls.m_wireframe.toggled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); };
@@ -180,7 +188,14 @@ namespace yz
 
             swap_buffers(ctx_.m_window);
             frame_count++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+
+            do
+            {
+                new_time = std::chrono::high_resolution_clock::now();
+                delta_time =
+                    std::chrono::duration<float, std::chrono::milliseconds::period>(new_time - cur_time).count();
+            }
+            while (delta_time < 16 + 1);
         }
     }
 }

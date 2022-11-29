@@ -24,6 +24,9 @@ namespace yz
 
             const usz m_size;
             std::vector<glm::vec4> m_vertices;
+            std::vector<glm::vec4> m_translations;
+            std::vector<GLint> m_firsts;
+            std::vector<GLsizei> m_counts;
 
             GLuint m_vao;
             GLuint m_vbo;

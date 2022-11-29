@@ -32,18 +32,23 @@ namespace yz
     constexpr u32 MAX_POINT_LIGHT{32};
     constexpr float ZFAR{100000000.0};
 
-    typedef enum UBO_BINDINGS
+    typedef enum
     {
         SHARED = 0,
         PLANET = 1,
         STAR = 2,
     }UBO_BINDINGS;
 
-    typedef enum UNIFORM_LOCATIONS
+    typedef enum
+    {
+        TEXT = 0
+    }SSBO_BINDINGS;
+
+    typedef enum
     {
         TEXTURE = 0,
         CHARACTER_TEXTURE = 33,
-        CHARACTER_TRANSLATION = 34,
+        //CHARACTER_TRANSLATION = 34,
         COMBINE_MAIN_SCENE = 35,
         COMBINE_BLOOM = 36,
         UPSAMPLE_TEXTURE = 37,
@@ -63,14 +68,14 @@ namespace yz
         }
     }vertex;
 
-    typedef struct ubo_point_light
+    typedef struct
     {
         alignas(16) glm::vec3 position;
         alignas(16) glm::vec3 range;
         alignas(16) glm::vec3 color;
     }ubo_point_light;
 
-    typedef struct ubo_shared
+    typedef struct
     {
         alignas(64) glm::mat4 view;
         alignas(64) glm::mat4 projection;

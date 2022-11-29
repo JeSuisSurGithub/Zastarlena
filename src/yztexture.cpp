@@ -35,7 +35,7 @@ namespace texture
         m_width = width;
         m_height = height;
         glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
-        glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, S_WRAP);
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, T_WRAP);

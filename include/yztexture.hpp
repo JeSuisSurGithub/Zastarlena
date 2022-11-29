@@ -21,7 +21,7 @@ namespace yz
             i32 m_height;
 
             texture(u32 width, u32 height, u32 index,
-                GLenum S_WRAP = GL_REPEAT, GLenum T_WRAP = GL_REPEAT);
+                GLenum S_WRAP = GL_CLAMP_TO_EDGE, GLenum T_WRAP = GL_CLAMP_TO_EDGE);
             texture(const std::string& texture_path, u32 index,
                 GLenum S_WRAP = GL_REPEAT, GLenum T_WRAP = GL_REPEAT);
             ~texture();
