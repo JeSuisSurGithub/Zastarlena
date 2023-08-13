@@ -1,6 +1,8 @@
 #ifndef YZCOMMON_HPP
 #define YZCOMMON_HPP
 
+#include <cfloat>
+
 #define YZ_LOAD_SPIRV true
 
 #include <glad/glad.h>
@@ -30,7 +32,7 @@ namespace yz
     const std::string WINDOW_NAME{"YuZhou"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
     constexpr u32 MAX_POINT_LIGHT{32};
-    constexpr float ZFAR{100000000.0};
+    constexpr float ZFAR{1e+10f};
 
     typedef enum
     {

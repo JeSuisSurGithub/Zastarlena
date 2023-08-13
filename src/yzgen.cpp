@@ -39,12 +39,12 @@ namespace yz
             float star_scale = lehmer_randrange_flt(seed, 10.0, 1000.0);
             glm::vec3 star_position = {
                 lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25)),
-                0.0,
+                lehmer_randrange_flt(seed, -1000.0, 1000.0),
                 lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25))};
             glm::vec3 star_color = {
-                lehmer_randrange_flt(seed, RGB_BIAS.r,  RGB_BIAS.r * 5.0 * (star_scale * 0.1)),
-                lehmer_randrange_flt(seed, RGB_BIAS.g,  RGB_BIAS.g * 5.0 * (star_scale * 0.1)),
-                lehmer_randrange_flt(seed, RGB_BIAS.b,  RGB_BIAS.b * 5.0 * (star_scale * 0.1))};
+                lehmer_randrange_flt(seed, RGB_BIAS.r,  RGB_BIAS.r * 5.0 * (star_scale * 0.2)),
+                lehmer_randrange_flt(seed, RGB_BIAS.g,  RGB_BIAS.g * 5.0 * (star_scale * 0.2)),
+                lehmer_randrange_flt(seed, RGB_BIAS.b,  RGB_BIAS.b * 5.0 * (star_scale * 0.2))};
             usz star_planet_count = std::clamp<usz>(star_scale * (8.0/1000.0), 2.0, 6.0);
             stars.m_stars.push_back(rendergroups::star(
                 *stars.m_base,
@@ -54,7 +54,7 @@ namespace yz
                 glm::vec3(0.0),
                 glm::vec3(star_scale),
                 star_color,
-                rendergroups::light_range_constants(10.0 * star_scale),
+                rendergroups::light_range_constants(8.0 * star_scale),
                 star_planet_count));
             std::cout << "Generated star (" << (star_count + 1) << '/' << count << ")" << std::endl;
             std::cout << "Generating " << star_planet_count << " planets..." << std::endl;
@@ -74,7 +74,7 @@ namespace yz
                 float cur_angle = lehmer_randrange_flt(seed, 0.0, glm::pi<float>());
                 glm::vec3 planet_position = {
                     star_position.x + glm::cos(cur_angle) * planet_distance_to_star,
-                    0.0,
+                    star_position.y,
                     star_position.z + glm::sin(cur_angle) * planet_distance_to_star};
                 glm::vec3 planet_color = lehmer_randrange_vec3(seed, glm::vec3(0.1), glm::vec3(1.0));
                 rendergroups::material material_ = {

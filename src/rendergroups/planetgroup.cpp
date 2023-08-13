@@ -57,7 +57,7 @@ namespace rendergroups
                     glm::vec3(0.0, delta_time * shorthand.planet_revolution_speed, 0.0));
                 shorthand.base.m_translation = {
                     position.x + glm::cos(shorthand.cur_angle) * shorthand.planet_distance_to_star,
-                    0.0,
+                    position.y,
                     position.z + glm::sin(shorthand.cur_angle) * shorthand.planet_distance_to_star};
             }
         }
