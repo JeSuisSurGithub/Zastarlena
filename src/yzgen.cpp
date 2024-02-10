@@ -36,15 +36,15 @@ namespace yz
         for (usz star_count = 0; star_count < count; star_count++)
         {
             std::cout << "Generating star (" << (star_count + 1) << '/' << count << ")..." << std::endl;
-            float star_scale = lehmer_randrange_flt(seed, 10.0, 1000.0);
+            float star_scale = lehmer_randrange_flt(seed, 20.0, 2000.0);
             glm::vec3 star_position = {
-                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25)),
-                lehmer_randrange_flt(seed, -1000.0, 1000.0),
-                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.25), (star_scale * SQUARE(count) * 0.25))};
+                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.10), (star_scale * SQUARE(count) * 0.10)),
+                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.10), (star_scale * SQUARE(count) * 0.10)),
+                lehmer_randrange_flt(seed, -(star_scale * SQUARE(count) * 0.10), (star_scale * SQUARE(count) * 0.10))};
             glm::vec3 star_color = {
-                lehmer_randrange_flt(seed, RGB_BIAS.r,  RGB_BIAS.r * 5.0 * (star_scale * 0.2)),
-                lehmer_randrange_flt(seed, RGB_BIAS.g,  RGB_BIAS.g * 5.0 * (star_scale * 0.2)),
-                lehmer_randrange_flt(seed, RGB_BIAS.b,  RGB_BIAS.b * 5.0 * (star_scale * 0.2))};
+                lehmer_randrange_flt(seed, RGB_BIAS.r,  RGB_BIAS.r * 5.0 * (star_scale * 0.1)),
+                lehmer_randrange_flt(seed, RGB_BIAS.g,  RGB_BIAS.g * 5.0 * (star_scale * 0.1)),
+                lehmer_randrange_flt(seed, RGB_BIAS.b,  RGB_BIAS.b * 5.0 * (star_scale * 0.1))};
             usz star_planet_count = std::clamp<usz>(star_scale * (8.0/1000.0), 2.0, 6.0);
             stars.m_stars.push_back(rendergroups::star(
                 *stars.m_base,
@@ -61,7 +61,7 @@ namespace yz
             for (usz index = 0; index < star_planet_count; index++, planet_count++)
             {
                 std::cout << "\tGenerating planet (" << (index + 1) << '/' << star_planet_count << ")..." << std::endl;
-                float planet_scale = lehmer_randrange_flt(seed, star_scale / 20.0, star_scale / 2.0);
+                float planet_scale = lehmer_randrange_flt(seed, star_scale / 40.0, star_scale / 4.0);
                 float planet_distance_to_star = lehmer_randrange_flt(seed,
                     ((planet_scale / star_scale) * 80.0 + (planet_scale * 40.0)),
                     ((planet_scale / star_scale) * 700.0 + (planet_scale * 40.0)));
