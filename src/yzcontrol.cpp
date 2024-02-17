@@ -46,9 +46,9 @@ namespace controls
             if (is_focused(window_))
             {
                 context.m_horizontal_angle +=
-                    context.m_view_speed * (g_fov * 0.01) * delta_time * (int(dimensions.x / 2) - position.x);
+                    context.m_view_speed * sin(g_fov * 0.01) * delta_time * (int(dimensions.x / 2) - position.x);
                 context.m_vertical_angle   +=
-                    context.m_view_speed * (g_fov * 0.01) * delta_time * (int(dimensions.y / 2) - position.y);
+                    context.m_view_speed * sin(g_fov * 0.01) * delta_time * (int(dimensions.y / 2) - position.y);
             }
         }
         glm::vec3 forward(
