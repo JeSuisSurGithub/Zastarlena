@@ -18,7 +18,7 @@ namespace window
         }
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(0);
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     window::~window()
@@ -64,7 +64,7 @@ namespace window
 
     void set_cursor_state(window& window_, bool show)
     {
-        glfwSetInputMode(window_.m_window, GLFW_CURSOR, (show) ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(window_.m_window, GLFW_CURSOR, (show) ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
     void set_cursor_pos(window& window_, cursor_pos cursor_pos_)
