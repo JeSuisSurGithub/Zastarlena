@@ -1,8 +1,10 @@
-#include <yzrendergroup.hpp>
+#include <rendergroup.hpp>
+
+#include <algorithm>
 
 #include <glm/gtx/quaternion.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace rendergroups
 {
@@ -32,7 +34,7 @@ namespace rendergroups
 
     rendergroup::rendergroup(const std::string& vert_path, const std::string& frag_path)
     :
-    m_program(std::make_unique<shader::shader>(vert_path, frag_path, YZ_LOAD_SPIRV))
+    m_program(std::make_unique<shader::shader>(vert_path, frag_path, ZSL_LOAD_SPIRV))
     {
         GLint values[MAX_TEXTURE_COUNT];
         for (usz index = 0; index < MAX_TEXTURE_COUNT; index++)

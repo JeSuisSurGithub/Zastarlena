@@ -1,9 +1,9 @@
-#ifndef YZWINDOW_HPP
-#define YZWINDOW_HPP
+#ifndef ZSLWINDOW_HPP
+#define ZSLWINDOW_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 
-namespace yz
+namespace zsl
 {
     namespace window
     {
@@ -37,4 +37,4 @@ namespace yz
     }
 }
 
-#endif /* YZWINDOW_HPP */
+#endif /* ZSLWINDOW_HPP */

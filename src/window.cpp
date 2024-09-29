@@ -1,6 +1,6 @@
-#include <yzwindow.hpp>
+#include <window.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace window
 {

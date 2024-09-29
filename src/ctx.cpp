@@ -1,12 +1,12 @@
 #include "rendergroups/textgroup.hpp"
-#include "yzcontrol.hpp"
+#include "control.hpp"
 #include <sstream>
-#include <yzctx.hpp>
+#include <ctx.hpp>
 
 #include <chrono>
 #include <thread>
 
-namespace yz
+namespace zsl
 {
     void GLAPIENTRY opengl_debug_callback(
         GLenum source,

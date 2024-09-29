@@ -1,11 +1,11 @@
 #ifndef STARGROUP_HPP
 #define STARGROUP_HPP
 
-#include "yzrendergroup.hpp"
-#include "yzubo.hpp"
+#include "rendergroup.hpp"
+#include "ubo.hpp"
 #include <memory>
 
-namespace yz
+namespace zsl
 {
     namespace rendergroups
     {

@@ -1,6 +1,6 @@
 #include <rendergroups/stargroup.hpp>
 
-namespace yz
+namespace zsl
 {
 
 namespace rendergroups

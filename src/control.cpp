@@ -1,8 +1,10 @@
-#include <yzcontrol.hpp>
+#include <control.hpp>
+
+#include <algorithm>
 
 float g_fov = 45.0;
 
-namespace yz
+namespace zsl
 {
 namespace controls
 {

@@ -1,12 +1,12 @@
-#ifndef YZFRAMEBUFFER_HPP
-#define YZFRAMEBUFFER_HPP
+#ifndef ZSLFRAMEBUFFER_HPP
+#define ZSLFRAMEBUFFER_HPP
 
-#include "yzcommon.hpp"
-#include "yzshader.hpp"
-#include "yztexture.hpp"
+#include "common.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 #include <memory>
 
-namespace yz
+namespace zsl
 {
     namespace framebuffer
     {
@@ -62,4 +62,4 @@ namespace yz
     }
 }
 
-#endif /* YZFRAMEBUFFER_HPP */
+#endif /* ZSLFRAMEBUFFER_HPP */

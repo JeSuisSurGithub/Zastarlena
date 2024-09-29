@@ -1,7 +1,7 @@
 #include <rendergroups/textgroup.hpp>
-#include <yzubo.hpp>
+#include <ubo.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace rendergroups
 {
@@ -9,7 +9,7 @@ namespace rendergroups
     :
     m_size(size),
     m_characters("textures/font.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
-    m_program("shaders/text.vert", "shaders/text.frag", YZ_LOAD_SPIRV)
+    m_program("shaders/text.vert", "shaders/text.frag", ZSL_LOAD_SPIRV)
     {
         update_int(m_program, UNIFORM_LOCATIONS::CHARACTER_TEXTURE, 0);
 

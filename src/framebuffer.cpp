@@ -1,14 +1,14 @@
-#include <yzframebuffer.hpp>
+#include <framebuffer.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace framebuffer
 {
     framebuffer::framebuffer(i32 width, i32 height, u32 previous_count)
     :
-    m_final("shaders/quad.vert", "shaders/final.frag", YZ_LOAD_SPIRV),
-    m_upsampler("shaders/quad.vert", "shaders/upsampler.frag", YZ_LOAD_SPIRV),
-    m_downsampler("shaders/quad.vert", "shaders/downsampler.frag", YZ_LOAD_SPIRV),
+    m_final("shaders/quad.vert", "shaders/final.frag", ZSL_LOAD_SPIRV),
+    m_upsampler("shaders/quad.vert", "shaders/upsampler.frag", ZSL_LOAD_SPIRV),
+    m_downsampler("shaders/quad.vert", "shaders/downsampler.frag", ZSL_LOAD_SPIRV),
     m_width(width),
     m_height(height),
     m_screen_tearing_count(previous_count)

@@ -1,12 +1,12 @@
-#ifndef YZSHADER_HPP
-#define YZSHADER_HPP
+#ifndef ZSLSHADER_HPP
+#define ZSLSHADER_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 
 #include <fstream>
 #include <vector>
 
-namespace yz
+namespace zsl
 {
     namespace shader
     {
@@ -37,4 +37,4 @@ namespace yz
     }
 }
 
-#endif /* YZSHADER_HPP */
+#endif /* ZSLSHADER_HPP */

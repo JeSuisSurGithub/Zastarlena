@@ -34,7 +34,7 @@ layout (std140, binding = 2) uniform ubo_star
     uint texture_index;
 };
 
-layout(location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
+layout (location = 0) uniform sampler2D textures[MAX_TEXTURE_COUNT];
 
 const float BASE_AMBIENT = 0.1;
 

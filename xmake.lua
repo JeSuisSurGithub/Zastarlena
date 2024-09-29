@@ -1,30 +1,30 @@
-set_xmakever("2.2.5")
+set_xmakever("2.2.1")
 
-set_project("YuZhou")
+set_project("Zastarlena")
 set_version("1.8.0")
 set_languages("cxx17")
 
-add_requires("opengl", "glfw", "glslang", {configs = {binaryonly = true}})
+-- add_requires("opengl", "glfw", "glslang", {configs = {binaryonly = true}})
 
 -- Source files
-target("yuzhou")
+target("zastarlena")
     set_kind("binary")
     add_files(
         "src/glad.c",
         "src/main.cpp",
-        "src/yzcontrol.cpp",
-        "src/yzctx.cpp",
-        "src/yzframebuffer.cpp",
-        "src/yzgen.cpp",
-        "src/yzmodel.cpp",
-        "src/yzrendergroup.cpp",
+        "src/control.cpp",
+        "src/ctx.cpp",
+        "src/framebuffer.cpp",
+        "src/gen.cpp",
+        "src/model.cpp",
+        "src/rendergroup.cpp",
         "src/rendergroups/planetgroup.cpp",
         "src/rendergroups/stargroup.cpp",
         "src/rendergroups/textgroup.cpp",
-        "src/yzshader.cpp",
-        "src/yztexture.cpp",
-        "src/yzubo.cpp",
-        "src/yzwindow.cpp")
+        "src/shader.cpp",
+        "src/texture.cpp",
+        "src/ubo.cpp",
+        "src/window.cpp")
 
     -- Libraries
     if is_host("windows") then
@@ -44,13 +44,13 @@ target("yuzhou")
     -- Compiler options
     set_warnings("everything")
     if is_mode("release") then
-        add_cxxflags("-O3", "-DNDEBUG")
+        add_cxxflags("-Ofast", "-march=native", "-flto", "-DNDEBUG")
     elseif is_mode("debug") then
         add_cxxflags("-O0", "-ggdb")
     end
 
     -- Shaders
-    add_rules("utils.glsl2spv", {outputdir = "build/shaders", targetenv = "opengl"})
+    add_rules("utils.glsl2spv", {client = "opengl100", outputdir = "build/shaders"})
     add_files(
         "shaders/quad.vert",
         "shaders/downsampler.frag",

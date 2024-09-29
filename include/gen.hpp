@@ -1,11 +1,11 @@
-#ifndef YZGEN_HPP
-#define YZGEN_HPP
+#ifndef ZSLGEN_HPP
+#define ZSLGEN_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 #include "rendergroups/planetgroup.hpp"
 #include "rendergroups/stargroup.hpp"
 
-namespace yz
+namespace zsl
 {
     i32 lehmer_randrange(u32& state, i32 min, i32 max);
     float lehmer_randrange_flt(u32& state, float min, float max);
@@ -18,4 +18,4 @@ namespace yz
         usz count);
 }
 
-#endif /* YZGEN_HPP */
+#endif /* ZSLGEN_HPP */

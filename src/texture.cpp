@@ -1,9 +1,9 @@
-#include <yztexture.hpp>
+#include <texture.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <ext/stb_image.h>
 
-namespace yz
+namespace zsl
 {
 namespace texture
 {

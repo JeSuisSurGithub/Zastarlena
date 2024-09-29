@@ -1,4 +1,4 @@
-#include <yzctx.hpp>
+#include <ctx.hpp>
 #include <chrono>
 
 int main()
@@ -6,8 +6,8 @@ int main()
     std::cout << "build " << __TIME__ << ' ' << __DATE__ << std::endl;
     try
     {
-        yz::ctx context{false, (yz::u32)std::chrono::system_clock::now().time_since_epoch().count()};
-        yz::run(context);
+        zsl::ctx context{false, (zsl::u32)std::chrono::system_clock::now().time_since_epoch().count()};
+        zsl::run(context);
     }
     catch (const std::exception& err)
     {

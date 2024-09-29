@@ -1,10 +1,10 @@
-#ifndef YZCONTROL_HPP
-#define YZCONTROL_HPP
+#ifndef ZSLCONTROL_HPP
+#define ZSLCONTROL_HPP
 
-#include "yzcommon.hpp"
-#include "yzwindow.hpp"
+#include "common.hpp"
+#include "window.hpp"
 
-namespace yz
+namespace zsl
 {
     namespace controls
     {
@@ -62,4 +62,4 @@ namespace yz
     }
 }
 
-#endif /* YZCONTROL_HPP */
+#endif /* ZSLCONTROL_HPP */

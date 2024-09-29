@@ -1,8 +1,10 @@
-#include <yzgen.hpp>
+#include <gen.hpp>
+
+#include <algorithm>
 
 #define SQUARE(X) X * X
 
-namespace yz
+namespace zsl
 {
     i32 lehmer_randrange(u32& state, i32 min, i32 max)
     {

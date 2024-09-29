@@ -1,6 +1,6 @@
 #include <rendergroups/planetgroup.hpp>
 
-namespace yz
+namespace zsl
 {
 
 namespace rendergroups

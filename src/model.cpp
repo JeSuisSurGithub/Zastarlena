@@ -1,4 +1,4 @@
-#include <yzmodel.hpp>
+#include <model.hpp>
 
 #include <algorithm>
 
@@ -6,7 +6,7 @@
 #include <ext/tiny_obj_loader.h>
 #include <ext/stb_image.h>
 
-namespace yz
+namespace zsl
 {
 namespace model
 {

@@ -1,9 +1,9 @@
-#ifndef YZCOMMON_HPP
-#define YZCOMMON_HPP
+#ifndef ZSLCOMMON_HPP
+#define ZSLCOMMON_HPP
 
 #include <cfloat>
 
-#define YZ_LOAD_SPIRV true
+#define ZSL_LOAD_SPIRV true
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string>
 
-namespace yz
+namespace zsl
 {
     typedef std::int32_t i32;
     typedef std::uint8_t u8;
@@ -29,7 +29,7 @@ namespace yz
     typedef signed long long int isz;
     typedef std::size_t usz;
 
-    const std::string WINDOW_NAME{"YuZhou"};
+    const std::string WINDOW_NAME{"Zastarlena"};
     constexpr u32 MAX_TEXTURE_COUNT{32};
     constexpr u32 MAX_POINT_LIGHT{32};
     constexpr float ZFAR{1e+10f};
@@ -89,4 +89,4 @@ namespace yz
     constexpr usz ubo_shared_size = 1684;
 }
 
-#endif /* YZCOMMON_HPP */
+#endif /* ZSLCOMMON_HPP */

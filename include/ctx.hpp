@@ -1,20 +1,20 @@
-#ifndef YZCTX_HPP
-#define YZCTX_HPP
+#ifndef ZSLCTX_HPP
+#define ZSLCTX_HPP
 
-#include "yzcommon.hpp"
-#include "yzcontrol.hpp"
+#include "common.hpp"
+#include "control.hpp"
 #include "rendergroups/planetgroup.hpp"
 #include "rendergroups/stargroup.hpp"
 #include "rendergroups/textgroup.hpp"
-#include "yzframebuffer.hpp"
-#include "yzgen.hpp"
-#include "yzubo.hpp"
-#include "yzwindow.hpp"
+#include "framebuffer.hpp"
+#include "gen.hpp"
+#include "ubo.hpp"
+#include "window.hpp"
 
 #include <chrono>
 #include <memory>
 
-namespace yz
+namespace zsl
 {
     constexpr usz TEXT_SIZE = 20;
     typedef struct ctx
@@ -49,4 +49,4 @@ namespace yz
     void run(ctx& ctx_);
 }
 
-#endif /* YZCTX_HPP */
+#endif /* ZSLCTX_HPP */

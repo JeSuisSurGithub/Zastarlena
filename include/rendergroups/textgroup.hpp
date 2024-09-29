@@ -1,11 +1,11 @@
 #ifndef TEXTGROUP_HPP
 #define TEXTGROUP_HPP
 
-#include "yzcommon.hpp"
-#include "yzshader.hpp"
-#include "yztexture.hpp"
+#include "common.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 
-namespace yz
+namespace zsl
 {
     namespace rendergroups
     {

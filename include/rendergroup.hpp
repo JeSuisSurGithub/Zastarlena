@@ -1,13 +1,13 @@
-#ifndef YZRENDERGROUPS_HPP
-#define YZRENDERGROUPS_HPP
+#ifndef ZSLRENDERGROUPS_HPP
+#define ZSLRENDERGROUPS_HPP
 
-#include "yzshader.hpp"
-#include "yztexture.hpp"
-#include "yzmodel.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
+#include "model.hpp"
 
 #include <memory>
 
-namespace yz
+namespace zsl
 {
     namespace rendergroups
     {
@@ -61,4 +61,4 @@ namespace yz
     }
 }
 
-#endif /* YZRENDERGROUPS_HPP */
+#endif /* ZSLRENDERGROUPS_HPP */

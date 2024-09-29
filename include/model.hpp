@@ -1,15 +1,15 @@
-#ifndef YZMODEL_HPP
-#define YZMODEL_HPP
+#ifndef ZSLMODEL_HPP
+#define ZSLMODEL_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 
 #include <unordered_map>
 
 namespace std
 {
-    template<> struct hash<yz::vertex>
+    template<> struct hash<zsl::vertex>
     {
-        std::size_t operator()(yz::vertex const& vertex) const
+        std::size_t operator()(zsl::vertex const& vertex) const
         {
             return
                 ((hash<glm::vec3>()(vertex.xyz) ^
@@ -19,7 +19,7 @@ namespace std
     };
 }
 
-namespace yz
+namespace zsl
 {
     namespace model
     {
@@ -59,4 +59,4 @@ namespace yz
     }
 }
 
-#endif /* YZMODEL_HPP */
+#endif /* ZSLMODEL_HPP */

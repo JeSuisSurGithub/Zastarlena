@@ -1,6 +1,6 @@
-#include <yzshader.hpp>
+#include <shader.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace shader
 {

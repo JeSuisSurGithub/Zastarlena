@@ -1,6 +1,6 @@
-#include <yzubo.hpp>
+#include <ubo.hpp>
 
-namespace yz
+namespace zsl
 {
 namespace memory
 {

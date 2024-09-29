@@ -1,9 +1,9 @@
-#ifndef YZTEXTURE_HPP
-#define YZTEXTURE_HPP
+#ifndef ZSLTEXTURE_HPP
+#define ZSLTEXTURE_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 
-namespace yz
+namespace zsl
 {
     namespace texture
     {
@@ -33,4 +33,4 @@ namespace yz
     }
 }
 
-#endif /* YZTEXTURE_HPP */
+#endif /* ZSLTEXTURE_HPP */

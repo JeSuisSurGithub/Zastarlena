@@ -1,9 +1,9 @@
-#ifndef YZUBO_HPP
-#define YZUBO_HPP
+#ifndef ZSLUBO_HPP
+#define ZSLUBO_HPP
 
-#include "yzcommon.hpp"
+#include "common.hpp"
 
-namespace yz
+namespace zsl
 {
     namespace memory
     {
@@ -39,4 +39,4 @@ namespace yz
     }
 }
 
-#endif /* YZUBO_HPP */
+#endif /* ZSLUBO_HPP */
